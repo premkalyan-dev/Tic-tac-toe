@@ -105,7 +105,8 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
                     onBack = { 
                         val isGameInProgress = gameState.moveHistory.isNotEmpty() && gameState.winner == null && !gameState.isDraw
                         if (isGameInProgress) showLeaveGameDialog = true else currentScreen = Screen.BOARD_SELECTION
-                    }
+                    },
+                    onSettingsClick = { showSettingsDialog = true }
                 )
             }
         }

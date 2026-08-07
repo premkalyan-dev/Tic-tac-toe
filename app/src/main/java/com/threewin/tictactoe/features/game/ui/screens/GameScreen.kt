@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,7 +37,8 @@ fun GameContent(
     vibrationEnabled: Boolean,
     haptic: HapticFeedback,
     viewModel: GameViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val isAiThinking by viewModel.isAiThinking.collectAsState()
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
@@ -48,6 +50,9 @@ fun GameContent(
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back_to_selection_description))
             }
             Text(text = if (gameMode == GameMode.VS_FRIEND) stringResource(id = R.string.label_vs_friend) else stringResource(id = R.string.label_vs_computer), style = if (isTablet) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Center))
+            IconButton(onClick = onSettingsClick, modifier = Modifier.align(Alignment.CenterEnd)) {
+                Icon(imageVector = Icons.Default.Settings, contentDescription = stringResource(id = R.string.settings_title))
+            }
         }
 
         Column(
