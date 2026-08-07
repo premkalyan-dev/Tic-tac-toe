@@ -38,15 +38,22 @@ fun GameContent(
     onBack: () -> Unit
 ) {
     val isAiThinking by viewModel.isAiThinking.collectAsState()
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+    
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp).height(56.dp)) {
             IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back_to_selection_description))
             }
-            Text(text = if (gameMode == GameMode.VS_FRIEND) stringResource(id = R.string.label_vs_friend) else stringResource(id = R.string.label_vs_computer), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Center))
+            Text(text = if (gameMode == GameMode.VS_FRIEND) stringResource(id = R.string.label_vs_friend) else stringResource(id = R.string.label_vs_computer), style = if (isTablet) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Center))
         }
 
-        Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = if (isTablet) 32.dp else 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             if (gameState.winner == null && !gameState.isDraw) {
                 Box(contentAlignment = Alignment.Center) {
                     StatusIndicator(gameState)
@@ -56,16 +63,25 @@ fun GameContent(
                 }
             } else { Spacer(modifier = Modifier.height(48.dp)) }
 
-            Spacer(modifier = Modifier.height(32.dp))
-            TicTacToeGrid(gameState = gameState, onCellClick = { if (vibrationEnabled) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); viewModel.onCellClick(it) })
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(if (isTablet) 48.dp else 32.dp))
             
-            // Undo Button (as a replacement for the "Hint" Ad button to maintain functionality)
-            Button(onClick = { viewModel.undoMove() }, modifier = Modifier.padding(8.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)) {
-                Text(stringResource(id = R.string.action_undo))
+            Box(modifier = Modifier.widthIn(max = 600.dp)) {
+                TicTacToeGrid(gameState = gameState, onCellClick = { if (vibrationEnabled) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); viewModel.onCellClick(it) })
+            }
+            
+            Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 24.dp))
+            
+            // Undo Button
+            Button(
+                onClick = { viewModel.undoMove() },
+                modifier = Modifier.padding(8.dp).height(if (isTablet) 56.dp else 48.dp).widthIn(min = 120.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(id = R.string.action_undo), style = if (isTablet) MaterialTheme.typography.titleMedium else MaterialTheme.typography.labelLarge)
             }
 
-            Spacer(modifier = Modifier.height(88.dp))
+            Spacer(modifier = Modifier.height(if (isTablet) 120.dp else 88.dp))
         }
     }
 }

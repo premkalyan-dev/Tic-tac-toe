@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_home">Home</string>
+    <string name="action_leave">Leave</string>
+    <string name="action_play_again">Play Again</string>
+    <string name="action_undo">Undo Move</string>
+    <string name="app_name">Tic-Tac-Toe</string>
+    <string name="app_theme_title">App Theme</string>
+    <string name="back_to_selection_description">Back to Board Selection</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="close_button_text">Close</string>
+    <string name="dialog_leave_game_message">Your current progress will be lost.</string>
+    <string name="dialog_leave_game_title">Leave game?</string>
+    <string name="difficulty_title">Computer Difficulty</string>
+    <string name="first_move_label">First Move: %1$s</string>
+    <string name="first_player_title">First Player</string>
+    <string name="game_turn_label">%1$s\'s Turn</string>
+    <string name="game_winner_label">Winner: %1$s</string>
+    <string name="label_vs_computer">vs Computer</string>
+    <string name="label_vs_friend">vs Friend</string>
+    <string name="mode_vs_computer">Play vs Computer</string>
+    <string name="mode_vs_friend">Play vs Friend</string>
+    <string name="pref_sound_description">Sound Effects: %1$s</string>
+    <string name="pref_sound_label">Sound Effects</string>
+    <string name="pref_vibration_description">Vibration: %1$s</string>
+    <string name="pref_vibration_label">Vibration</string>
+    <string name="preferences_title">Game Preferences</string>
+    <string name="preferred_mark_title">Your Mark (vs Computer)</string>
+    <string name="reset_button_text">Reset</string>
+    <string name="reset_stats_message">Reset all stats? This can\'t be undone.</string>
+    <string name="reset_stats_title">Reset Stats</string>
+    <string name="result_draw_subtitle">No winner this round. Well played!</string>
+    <string name="result_draw_title">It\'s a Draw!</string>
+    <string name="result_o_wins">O Wins!</string>
+    <string name="result_o_wins_subtitle">The O player won this round.</string>
+    <string name="result_x_wins">X Wins!</string>
+    <string name="result_x_wins_subtitle">The X player won this round.</string>
+    <string name="select_board_size">Choose Board Size</string>
+    <string name="settings_title">Settings</string>
+    <string name="stat_difficulty">Difficulty</string>
+    <string name="stat_draws">Draws</string>
+    <string name="stat_game_mode">Mode</string>
+    <string name="stat_losses">Losses</string>
+    <string name="stat_moves">Total Moves</string>
+    <string name="stat_time">Time Taken</string>
+    <string name="stat_winner">Winner</string>
+    <string name="stat_wins">Wins</string>
+    <string name="statistics_title">Statistics</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">System</string>
+    <style name="Theme.TicTacToe" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

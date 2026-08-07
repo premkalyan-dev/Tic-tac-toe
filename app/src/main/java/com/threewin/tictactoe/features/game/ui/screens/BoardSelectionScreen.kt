@@ -16,26 +16,48 @@ import com.threewin.tictactoe.R
 
 @Composable
 fun SelectBoardSizeScreen(onSizeSelected: (Int) -> Unit, onBack: () -> Unit, onSettingsClick: () -> Unit) {
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth().padding(8.dp).height(56.dp)) {
             IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
             IconButton(onClick = onSettingsClick, modifier = Modifier.align(Alignment.CenterEnd)) { Icon(Icons.Default.Settings, contentDescription = null) }
         }
-        Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(text = stringResource(id = R.string.select_board_size), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-            Spacer(modifier = Modifier.height(48.dp))
-            BoardSizeButton(label = "3 x 3", onClick = { onSizeSelected(3) })
+        Column(
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(if (isTablet) 64.dp else 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(id = R.string.select_board_size),
+                style = if (isTablet) MaterialTheme.typography.displaySmall else MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(modifier = Modifier.height(if (isTablet) 64.dp else 48.dp))
+            
+            val buttonModifier = Modifier.widthIn(max = 400.dp).fillMaxWidth()
+            
+            BoardSizeButton(label = "3 x 3", modifier = buttonModifier, onClick = { onSizeSelected(3) })
             Spacer(modifier = Modifier.height(16.dp))
-            BoardSizeButton(label = "4 x 4", onClick = { onSizeSelected(4) })
+            BoardSizeButton(label = "4 x 4", modifier = buttonModifier, onClick = { onSizeSelected(4) })
             Spacer(modifier = Modifier.height(16.dp))
-            BoardSizeButton(label = "5 x 5", onClick = { onSizeSelected(5) })
+            BoardSizeButton(label = "5 x 5", modifier = buttonModifier, onClick = { onSizeSelected(5) })
         }
     }
 }
 
 @Composable
-fun BoardSizeButton(label: String, onClick: () -> Unit) {
-    Button(onClick = onClick, modifier = Modifier.fillMaxWidth().height(72.dp), shape = RoundedCornerShape(20.dp), elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)) {
-        Text(text = label, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+fun BoardSizeButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+    
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(if (isTablet) 88.dp else 72.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+    ) {
+        Text(text = label, style = if (isTablet) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
     }
 }
