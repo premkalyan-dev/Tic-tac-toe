@@ -156,7 +156,7 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.first_player_title)) {
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FirstPlayerRule.values().forEach { rule -> FilterChip(selected = firstPlayerRule == rule, onClick = { viewModel.setFirstPlayerRule(rule) }, label = { Text(rule.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }) }) }
+                            FirstPlayerRule.values().forEach { rule -> FilterChip(selected = firstPlayerRule == rule, onClick = { viewModel.setFirstPlayerRule(rule) }, label = { Text(rule.name.replace("_", " ").lowercase().split(" ").joinToString(" ") { word -> if (word.length == 1) word.uppercase() else word.replaceFirstChar { it.uppercase() } }) }) }
                         }
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.app_theme_title)) {
