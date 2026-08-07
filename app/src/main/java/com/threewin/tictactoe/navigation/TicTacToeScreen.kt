@@ -4,6 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -35,7 +42,7 @@ import com.threewin.tictactoe.features.game.viewmodel.GameViewModel
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    START, BOARD_SELECTION, GAME
+    SPLASH, START, BOARD_SELECTION, GAME
 }
 
 @Composable
@@ -54,7 +61,7 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
     var showResetDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showLeaveGameDialog by remember { mutableStateOf(false) }
-    var currentScreen by remember { mutableStateOf(Screen.START) }
+    var currentScreen by remember { mutableStateOf(Screen.SPLASH) }
     
     val haptic = LocalHapticFeedback.current
 
@@ -90,6 +97,7 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
             label = "ScreenTransition"
         ) { targetScreen ->
             when (targetScreen) {
+                Screen.SPLASH -> SplashScreen(onSplashFinished = { currentScreen = Screen.START })
                 Screen.START -> StartScreen(onModeSelected = { mode -> viewModel.setGameMode(mode); currentScreen = Screen.BOARD_SELECTION })
                 Screen.BOARD_SELECTION -> SelectBoardSizeScreen(
                     onSizeSelected = { size -> viewModel.setBoardSize(size); currentScreen = Screen.GAME },
@@ -247,6 +255,125 @@ fun GameResultDialog(result: GameResult, onPlayAgain: () -> Unit, onHome: () -> 
                 Button(onClick = onPlayAgain, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp)) { Text(text = stringResource(id = R.string.action_play_again), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
                 Spacer(modifier = Modifier.height(12.dp)); OutlinedButton(onClick = onHome, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))) { Text(text = stringResource(id = R.string.action_home), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
             }
+        }
+    }
+}
+
+@Composable
+fun SplashScreen(onSplashFinished: () -> Unit) {
+    // Animated rainbow gradient shift
+    val infiniteTransition = rememberInfiniteTransition(label = "RainbowTransition")
+    val gradientOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = LinearEasing)
+        ),
+        label = "GradientShift"
+    )
+
+    // Neon rainbow colors
+    val neonColors = listOf(
+        Color(0xFFFF006E),  // Neon Pink
+        Color(0xFFFF4D00),  // Neon Orange
+        Color(0xFFFFBE0B),  // Neon Yellow
+        Color(0xFF00F5D4),  // Neon Mint
+        Color(0xFF00BBF9),  // Neon Cyan
+        Color(0xFF6366F1),  // Neon Indigo
+        Color(0xFFA855F7),  // Neon Purple
+        Color(0xFFFF006E)   // Loop back to Pink
+    )
+
+    // Shift colors based on animation
+    val shiftedColors = remember(gradientOffset) {
+        val shift = (gradientOffset * neonColors.size).toInt()
+        val result = mutableListOf<Color>()
+        for (i in neonColors.indices) {
+            result.add(neonColors[(i + shift) % neonColors.size])
+        }
+        result.toList()
+    }
+
+    // Logo scale animation (pulse)
+    val logoScale = remember { Animatable(0f) }
+    val logoAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        // Animate logo in
+        launch {
+            logoAlpha.animateTo(1f, animationSpec = tween(600))
+        }
+        launch {
+            logoScale.animateTo(
+                1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+        // Wait and navigate
+        kotlinx.coroutines.delay(2500)
+        onSplashFinished()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    colors = shiftedColors,
+                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                    end = androidx.compose.ui.geometry.Offset(1000f, 1800f)
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .graphicsLayer(
+                    scaleX = logoScale.value,
+                    scaleY = logoScale.value,
+                    alpha = logoAlpha.value
+                )
+        ) {
+            // App Logo
+            val isPreview = androidx.compose.ui.platform.LocalInspectionMode.current
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(
+                    id = if (isPreview) R.drawable.ic_launcher_foreground else R.drawable.app_logo_new
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(180.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(36.dp)
+                    )
+                    .padding(8.dp),
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // App Name
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Subtitle
+            Text(
+                text = "Three to Win",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White.copy(alpha = 0.85f)
+            )
         }
     }
 }
