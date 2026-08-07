@@ -192,7 +192,7 @@ fun StatsHeader(stats: com.threewin.tictactoe.data.local.StatsManager.GameStats,
             StatRow(label = stringResource(id = R.string.stat_losses), value = stats.losses)
             StatRow(label = stringResource(id = R.string.stat_draws), value = stats.draws)
         }
-        VerticalDivider(modifier = Modifier.height(70.dp).padding(horizontal = 16.dp), thickness = 1.dp, color = Color(0xFFEEEEEE))
+        VerticalDivider(modifier = Modifier.height(70.dp).padding(horizontal = 16.dp), thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         TextButton(onClick = onResetClick, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(20.dp)); Text(stringResource(id = R.string.reset_button_text), fontSize = 11.sp, fontWeight = FontWeight.Bold) }
         }
@@ -201,7 +201,7 @@ fun StatsHeader(stats: com.threewin.tictactoe.data.local.StatsManager.GameStats,
 
 @Composable
 fun SettingsSectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), border = BorderStroke(1.dp, Color(0xFFEEEEEE))) {
+    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
         Column(modifier = Modifier.padding(16.dp)) { Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary); Spacer(modifier = Modifier.height(8.dp)); content() }
     }
 }
@@ -209,7 +209,7 @@ fun SettingsSectionCard(title: String, content: @Composable ColumnScope.() -> Un
 @Composable
 fun StatRow(label: String, value: Int) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         AnimatedContent(targetState = value, transitionSpec = { (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut()) }, label = "StatAnimation") { targetValue ->
             Text(text = "$targetValue", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 12.dp))
         }

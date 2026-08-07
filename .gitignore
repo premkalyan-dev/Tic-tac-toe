@@ -1,15 +1,62 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# Android Build Artifacts
 /build
-/captures
-.externalNativeBuild
-.cxx
+/*/build
+*.iml
+*.apk
+*.aar
+*.ap_
+*.dex
+*.class
+
+# Android Studio & IntelliJ
+.idea/
+!.idea/codeStyles/
+!.idea/copyright/
+!.idea/inspectionProfiles/
+!.idea/iconloader.xml
+*.iws
+*.ipr
+/captures/
+.externalNativeBuild/
+.cxx/
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+
+# Gradle
+.gradle/
+build/
+/gradle/configuration-cache
+/gradle/daemon-jvm.properties
+/gradle/kotlin-dsl/
+
+# Local configuration files (Sensitive)
 local.properties
+*.jks
+*.keystore
+*.p12
+*.key
+secrets.properties
+
+# Kotlin
+.kotlin/
+kotlin-js-store/
+
+# VS Code
+.vscode/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.apple_desktop
+.apple_double
+.LSOverride
+
+# Logs & Caches
+*.log
+.cache/
+
+# Device-specific (captures, etc.)
+captures/

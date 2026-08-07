@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import com.threewin.tictactoe.theme.*
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.res.stringResource
@@ -89,13 +90,15 @@ fun GameContent(
 @Composable
 fun TicTacToeGrid(gameState: GameState, onCellClick: (Int) -> Unit) {
     val size = gameState.boardSize
+    val isDark = LocalIsDarkTheme.current
+    val winCellColor = if (isDark) WinCellDark else WinCellLight
     Column(modifier = Modifier.aspectRatio(1f).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp)).padding(12.dp)) {
         for (row in 0 until size) {
             Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 for (col in 0 until size) {
                     val index = row * size + col
                     val isWinningCell = gameState.winningLine?.contains(index) == true
-                    Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).background(color = if (isWinningCell) Color(0xFFC8E6C9) else MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(if (size > 3) 4.dp else 8.dp)).clickable { onCellClick(index) }, contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).background(color = if (isWinningCell) winCellColor else MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(if (size > 3) 4.dp else 8.dp)).clickable { onCellClick(index) }, contentAlignment = Alignment.Center) {
                         AnimatedMark(player = gameState.board[index], fontSize = if (size == 3) 48.sp else if (size == 4) 36.sp else 28.sp)
                     }
                 }
@@ -107,9 +110,15 @@ fun TicTacToeGrid(gameState: GameState, onCellClick: (Int) -> Unit) {
 @Composable
 fun AnimatedMark(player: Player?, fontSize: androidx.compose.ui.unit.TextUnit = 48.sp) {
     if (player == null) return
+    val isDark = LocalIsDarkTheme.current
     val scale = remember { Animatable(0f) }
     LaunchedEffect(player) { scale.animateTo(targetValue = 1f, animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)) }
-    Text(text = player.name, fontSize = fontSize, fontWeight = FontWeight.ExtraBold, color = if (player == Player.X) Color(0xFFE91E63) else Color(0xFF2196F3), modifier = Modifier.scale(scale.value))
+    val markColor = if (player == Player.X) {
+        if (isDark) XMarkDark else XMarkLight
+    } else {
+        if (isDark) OMarkDark else OMarkLight
+    }
+    Text(text = player.name, fontSize = fontSize, fontWeight = FontWeight.ExtraBold, color = markColor, modifier = Modifier.scale(scale.value))
 }
 
 @Composable
