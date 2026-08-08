@@ -164,9 +164,6 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
             title = { Text(stringResource(id = R.string.settings_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxWidth()) {
-                    SettingsSectionCard(title = stringResource(id = R.string.statistics_title)) {
-                        StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
-                    }
                     SettingsSectionCard(title = stringResource(id = R.string.preferences_title)) {
                         PreferenceRow(label = stringResource(id = R.string.pref_sound_label), contentDescription = stringResource(id = R.string.pref_sound_description, if (isSoundEnabled) "On" else "Off")) { Switch(checked = isSoundEnabled, onCheckedChange = { viewModel.toggleSound() }) }
                         PreferenceRow(label = stringResource(id = R.string.pref_vibration_label), contentDescription = stringResource(id = R.string.pref_vibration_description, if (vibrationEnabled) "On" else "Off")) { Switch(checked = vibrationEnabled, onCheckedChange = { viewModel.toggleVibration() }) }
