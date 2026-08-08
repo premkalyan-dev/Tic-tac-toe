@@ -10,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
@@ -272,118 +273,158 @@ fun GameResultDialog(result: GameResult, onPlayAgain: () -> Unit, onHome: () -> 
 
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit) {
-    // Animated rainbow gradient shift
-    val infiniteTransition = rememberInfiniteTransition(label = "RainbowTransition")
-    val gradientOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing)
-        ),
-        label = "GradientShift"
-    )
-
-    // Neon rainbow colors
-    val neonColors = listOf(
-        Color(0xFFFF006E),  // Neon Pink
-        Color(0xFFFF4D00),  // Neon Orange
-        Color(0xFFFFBE0B),  // Neon Yellow
-        Color(0xFF00F5D4),  // Neon Mint
-        Color(0xFF00BBF9),  // Neon Cyan
-        Color(0xFF6366F1),  // Neon Indigo
-        Color(0xFFA855F7),  // Neon Purple
-        Color(0xFFFF006E)   // Loop back to Pink
-    )
-
-    // Shift colors based on animation
-    val shiftedColors = remember(gradientOffset) {
-        val shift = (gradientOffset * neonColors.size).toInt()
-        val result = mutableListOf<Color>()
-        for (i in neonColors.indices) {
-            result.add(neonColors[(i + shift) % neonColors.size])
-        }
-        result.toList()
-    }
-
-    // Logo scale animation (pulse)
-    val logoScale = remember { Animatable(0f) }
+    // Staggered entrance animations
+    val logoScale = remember { Animatable(0.7f) }
     val logoAlpha = remember { Animatable(0f) }
+    val titleAlpha = remember { Animatable(0f) }
+    val titleOffset = remember { Animatable(20f) }
+    val subtitleAlpha = remember { Animatable(0f) }
+
+    // Exit animation
+    val exitScale = remember { Animatable(1f) }
+    val exitAlpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        // Animate logo in
+        // Phase 1: Logo entrance (0ms)
         launch {
-            logoAlpha.animateTo(1f, animationSpec = tween(600))
+            logoAlpha.animateTo(1f, animationSpec = tween(500, easing = FastOutSlowInEasing))
         }
         launch {
             logoScale.animateTo(
                 1f,
                 animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMediumLow
                 )
             )
         }
-        // Wait and navigate
-        kotlinx.coroutines.delay(2500)
+
+        // Phase 2: Title entrance (300ms)
+        kotlinx.coroutines.delay(300)
+        launch {
+            titleAlpha.animateTo(1f, animationSpec = tween(400))
+        }
+        launch {
+            titleOffset.animateTo(0f, animationSpec = tween(400, easing = FastOutSlowInEasing))
+        }
+
+        // Phase 3: Subtitle entrance (500ms)
+        kotlinx.coroutines.delay(200)
+        launch {
+            subtitleAlpha.animateTo(1f, animationSpec = tween(350))
+        }
+
+        // Phase 4: Hold briefly, then exit (1200ms after subtitle)
+        kotlinx.coroutines.delay(800)
+
+        // Smooth exit
+        launch {
+            exitScale.animateTo(1.1f, animationSpec = tween(300, easing = FastOutSlowInEasing))
+        }
+        launch {
+            exitAlpha.animateTo(0f, animationSpec = tween(300, easing = FastOutSlowInEasing))
+        }
+        kotlinx.coroutines.delay(300)
         onSplashFinished()
     }
+
+    // Elegant 2-color gradient
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF1A1A2E),  // Deep navy
+            Color(0xFF16213E),  // Dark blue
+            Color(0xFF0F3460)   // Rich blue
+        ),
+        start = Offset(0f, 0f),
+        end = Offset(500f, 1800f)
+    )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.linearGradient(
-                    colors = shiftedColors,
-                    start = Offset(0f, 0f),
-                    end = Offset(1000f, 1800f)
-                )
+            .background(gradientBrush)
+            .graphicsLayer(
+                scaleX = exitScale.value,
+                scaleY = exitScale.value,
+                alpha = exitAlpha.value
             ),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .graphicsLayer(
-                    scaleX = logoScale.value,
-                    scaleY = logoScale.value,
-                    alpha = logoAlpha.value
-                )
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App Logo
-            val isPreview = LocalInspectionMode.current
-            Image(
-                painter = painterResource(
-                    id = if (isPreview) R.drawable.ic_launcher_foreground else R.drawable.app_logo_new
-                ),
-                contentDescription = null,
+            // Logo with elegant container
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(180.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(36.dp)
+                    .graphicsLayer(
+                        scaleX = logoScale.value,
+                        scaleY = logoScale.value,
+                        alpha = logoAlpha.value
                     )
-                    .padding(8.dp),
-                contentScale = ContentScale.Fit
-            )
+            ) {
+                // Outer glow ring
+                Box(
+                    modifier = Modifier
+                        .size(160.dp)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    Color.White.copy(alpha = 0.08f),
+                                    Color.Transparent
+                                )
+                            ),
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                )
 
-            Spacer(modifier = Modifier.height(28.dp))
+                // Logo container
+                val isPreview = LocalInspectionMode.current
+                Image(
+                    painter = painterResource(
+                        id = if (isPreview) R.drawable.ic_launcher_foreground else R.drawable.app_logo_new
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .background(
+                            color = Color.White.copy(alpha = 0.1f),
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                        .padding(4.dp)
+                        .graphicsLayer(
+                            clip = true,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        ),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-            // App Name
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // App Name — staggered entrance
             Text(
                 text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Black,
-                color = Color.White
+                color = Color.White,
+                letterSpacing = 1.sp,
+                modifier = Modifier.graphicsLayer(
+                    alpha = titleAlpha.value,
+                    translationY = titleOffset.value
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Subtitle
+            // Tagline — last to appear
             Text(
-                text = "Three to Win",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White.copy(alpha = 0.85f)
+                text = "Challenge Your Mind",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.6f),
+                letterSpacing = 2.sp,
+                modifier = Modifier.graphicsLayer(alpha = subtitleAlpha.value)
             )
         }
     }
