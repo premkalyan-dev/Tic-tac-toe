@@ -108,7 +108,11 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
         ) { targetScreen ->
             when (targetScreen) {
                 Screen.SPLASH -> SplashScreen(onSplashFinished = { currentScreen = Screen.START })
-                Screen.START -> StartScreen(onModeSelected = { mode -> viewModel.setGameMode(mode); currentScreen = Screen.BOARD_SELECTION })
+                Screen.START -> StartScreen(
+                    onModeSelected = { mode -> viewModel.setGameMode(mode); currentScreen = Screen.BOARD_SELECTION },
+                    stats = stats,
+                    onResetStats = { viewModel.resetStats() }
+                )
                 Screen.BOARD_SELECTION -> SelectBoardSizeScreen(
                     onSizeSelected = { size -> viewModel.setBoardSize(size); currentScreen = Screen.GAME },
                     onBack = { currentScreen = Screen.START },
