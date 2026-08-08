@@ -111,7 +111,7 @@ private fun HomeContent(onModeSelected: (GameMode) -> Unit, stats: StatsManager.
     val buttonsOffset = remember { Animatable(40f) }
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.launch {
+        launch {
             logoScale.animateTo(
                 1f,
                 animationSpec = spring(
@@ -120,10 +120,10 @@ private fun HomeContent(onModeSelected: (GameMode) -> Unit, stats: StatsManager.
                 )
             )
         }
-        kotlinx.coroutines.launch {
+        launch {
             contentAlpha.animateTo(1f, animationSpec = tween(600))
         }
-        kotlinx.coroutines.launch {
+        launch {
             kotlinx.coroutines.delay(200)
             buttonsOffset.animateTo(0f, animationSpec = spring(stiffness = Spring.StiffnessLow))
         }
