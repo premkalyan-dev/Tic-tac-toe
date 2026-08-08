@@ -11,6 +11,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,12 +29,20 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import android.content.res.Configuration
 import com.threewin.tictactoe.R
 import com.threewin.tictactoe.domain.model.*
 import com.threewin.tictactoe.features.game.ui.screens.GameContent
@@ -159,17 +169,17 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.difficulty_title)) {
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            DifficultyLevel.values().forEach { level -> FilterChip(selected = difficultyLevel == level, onClick = { viewModel.setDifficultyLevel(level) }, label = { Text(level.name.lowercase().replaceFirstChar { it.uppercase() }) }) }
+                            DifficultyLevel.entries.forEach { level -> FilterChip(selected = difficultyLevel == level, onClick = { viewModel.setDifficultyLevel(level) }, label = { Text(level.name.lowercase().replaceFirstChar { it.uppercase() }) }) }
                         }
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.first_player_title)) {
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FirstPlayerRule.values().forEach { rule -> FilterChip(selected = firstPlayerRule == rule, onClick = { viewModel.setFirstPlayerRule(rule) }, label = { Text(rule.name.replace("_", " ").lowercase().split(" ").joinToString(" ") { word -> if (word.length == 1) word.uppercase() else word.replaceFirstChar { it.uppercase() } }) }) }
+                            FirstPlayerRule.entries.forEach { rule -> FilterChip(selected = firstPlayerRule == rule, onClick = { viewModel.setFirstPlayerRule(rule) }, label = { Text(rule.name.replace("_", " ").lowercase().split(" ").joinToString(" ") { word -> if (word.length == 1) word.uppercase() else word.replaceFirstChar { it.uppercase() } }) }) }
                         }
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.app_theme_title)) {
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ThemeMode.values().forEach { mode -> FilterChip(selected = themeMode == mode, onClick = { viewModel.setThemeMode(mode) }, label = { Text(mode.name.lowercase().replaceFirstChar { it.uppercase() }) }) }
+                            ThemeMode.entries.forEach { mode -> FilterChip(selected = themeMode == mode, onClick = { viewModel.setThemeMode(mode) }, label = { Text(mode.name.lowercase().replaceFirstChar { it.uppercase() }) }) }
                         }
                     }
                     SettingsSectionCard(title = stringResource(id = R.string.preferred_mark_title)) {
@@ -227,10 +237,10 @@ fun StatRow(label: String, value: Int) {
 
 @Composable
 fun GameResultDialog(result: GameResult, onPlayAgain: () -> Unit, onHome: () -> Unit) {
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-    androidx.compose.ui.window.Dialog(onDismissRequest = { }, properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = !isLandscape)) {
-        val scope = rememberCoroutineScope(); val scale = remember { androidx.compose.animation.core.Animatable(0.9f) }; val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    Dialog(onDismissRequest = { }, properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = !isLandscape)) {
+        val scope = rememberCoroutineScope(); val scale = remember { Animatable(0.9f) }; val alpha = remember { Animatable(0f) }
         LaunchedEffect(Unit) { scope.launch { scale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)) }; scope.launch { alpha.animateTo(1f, animationSpec = spring(stiffness = Spring.StiffnessLow)) } }
         Surface(modifier = Modifier.padding(24.dp).wrapContentHeight().fillMaxWidth(if (isLandscape) 0.6f else 1f).scale(scale.value).graphicsLayer(alpha = alpha.value), shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 6.dp, shadowElevation = 8.dp) {
             Column(modifier = Modifier.padding(24.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -323,8 +333,8 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             .background(
                 Brush.linearGradient(
                     colors = shiftedColors,
-                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                    end = androidx.compose.ui.geometry.Offset(1000f, 1800f)
+                    start = Offset(0f, 0f),
+                    end = Offset(1000f, 1800f)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -339,9 +349,9 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 )
         ) {
             // App Logo
-            val isPreview = androidx.compose.ui.platform.LocalInspectionMode.current
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(
+            val isPreview = LocalInspectionMode.current
+            Image(
+                painter = painterResource(
                     id = if (isPreview) R.drawable.ic_launcher_foreground else R.drawable.app_logo_new
                 ),
                 contentDescription = null,
@@ -352,7 +362,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                         shape = RoundedCornerShape(36.dp)
                     )
                     .padding(8.dp),
-                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.height(28.dp))
