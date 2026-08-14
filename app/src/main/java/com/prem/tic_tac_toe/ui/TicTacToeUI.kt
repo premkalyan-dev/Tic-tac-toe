@@ -1,6 +1,7 @@
 package com.prem.tic_tac_toe.ui
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,8 +39,17 @@ fun GameScreen(
     val gameMode by viewModel.gameMode.collectAsState()
     val gridSize by viewModel.gridSize.collectAsState()
     val stats by viewModel.stats.collectAsState()
+    val aiPlayer by viewModel.aiPlayer.collectAsState()
 
     var showResetDialog by remember { mutableStateOf(false) }
+    var showResultDialog by remember { mutableStateOf(false) }
+
+    // Show result dialog when game ends
+    LaunchedEffect(gameState.winner, gameState.isDraw) {
+        if (gameState.winner != null || gameState.isDraw) {
+            showResultDialog = true
+        }
+    }
 
     val gridLabel = "${gridSize}×${gridSize}"
     val modeLabel = when (gameMode) {
@@ -110,43 +120,6 @@ fun GameScreen(
                 gridSize = gridSize,
                 onCellClick = { viewModel.onCellClick(it) }
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Play Again / New Game Button
-            if (gameState.winner != null || gameState.isDraw) {
-                // Entrance animation for button
-                val buttonScale = remember { Animatable(0f) }
-                LaunchedEffect(Unit) {
-                    buttonScale.animateTo(
-                        1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-                }
-
-                Button(
-                    onClick = { viewModel.resetGame() },
-                    modifier = Modifier
-                        .height(56.dp)
-                        .fillMaxWidth(0.7f)
-                        .scale(buttonScale.value),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CoralOrange
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-                ) {
-                    Text(
-                        "Play Again",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
-            }
         }
     }
 
@@ -171,6 +144,123 @@ fun GameScreen(
             }
         )
     }
+
+    // Game Result Dialog
+    if (showResultDialog) {
+        GameResultDialog(
+            gameState = gameState,
+            gameMode = gameMode,
+            aiPlayer = aiPlayer,
+            onDismiss = { showResultDialog = false },
+            onPlayAgain = {
+                showResultDialog = false
+                viewModel.resetGame()
+            },
+            onUndo = {
+                showResultDialog = false
+                viewModel.undoMove()
+            }
+        )
+    }
+}
+
+@Composable
+fun GameResultDialog(
+    gameState: GameState,
+    gameMode: GameMode,
+    aiPlayer: Player,
+    onDismiss: () -> Unit,
+    onPlayAgain: () -> Unit,
+    onUndo: () -> Unit
+) {
+    val resultTitle = when {
+        gameState.winner != null -> {
+            if (gameMode == GameMode.VS_COMPUTER) {
+                if (gameState.winner == aiPlayer) "You Lost!" else "You Won!"
+            } else {
+                "Player ${gameState.winner} Wins!"
+            }
+        }
+        gameState.isDraw -> "It's a Draw!"
+        else -> ""
+    }
+
+    val resultIcon = when {
+        gameState.winner != null -> {
+            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) "😞" else "🎉"
+        }
+        gameState.isDraw -> "🤝"
+        else -> ""
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = resultIcon,
+                    fontSize = 48.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = resultTitle,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = when {
+                        gameState.winner != null -> {
+                            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) LossRed else WinGreen
+                        }
+                        else -> DrawAmber
+                    }
+                )
+            }
+        },
+        text = {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                val message = when {
+                    gameState.isDraw -> "Good game! Both played well."
+                    gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer -> "Better luck next time!"
+                    else -> "Excellent move! Congratulations!"
+                }
+                Text(
+                    text = message,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
+        },
+        confirmButton = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onPlayAgain,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = CoralOrange)
+                ) {
+                    Text("Play Again", color = Color.White)
+                }
+                
+                OutlinedButton(
+                    onClick = onUndo,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Text("Undo Last Move", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Close", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    )
 }
 
 // ─── Settings Dialog (extracted for sharing) ───

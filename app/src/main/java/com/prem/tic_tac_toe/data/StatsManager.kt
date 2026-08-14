@@ -32,6 +32,21 @@ class StatsManager(context: Context) {
         prefs.edit().putInt(KEY_DRAWS, prefs.getInt(KEY_DRAWS, 0) + 1).apply()
     }
 
+    fun decrementWins() {
+        val current = prefs.getInt(KEY_WINS, 0)
+        if (current > 0) prefs.edit().putInt(KEY_WINS, current - 1).apply()
+    }
+
+    fun decrementLosses() {
+        val current = prefs.getInt(KEY_LOSSES, 0)
+        if (current > 0) prefs.edit().putInt(KEY_LOSSES, current - 1).apply()
+    }
+
+    fun decrementDraws() {
+        val current = prefs.getInt(KEY_DRAWS, 0)
+        if (current > 0) prefs.edit().putInt(KEY_DRAWS, current - 1).apply()
+    }
+
     fun resetStats() {
         prefs.edit().clear().apply()
     }

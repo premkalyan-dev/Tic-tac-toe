@@ -49,6 +49,8 @@ class GameViewModel(
     private val _isSoundEnabled = MutableStateFlow(settingsManager.isSoundEnabled())
     val isSoundEnabled: StateFlow<Boolean> = _isSoundEnabled.asStateFlow()
 
+    private val history = mutableListOf<GameState>()
+
     private var isProcessingMove = false
 
     fun onCellClick(position: Int) {
@@ -63,13 +65,14 @@ class GameViewModel(
         }
 
         if (isHumanTurn && currentState.board[position] == null && currentState.winner == null && !currentState.isDraw) {
+            history.add(currentState)
             val newState = GameEngine.makeMove(currentState, position)
             _gameState.value = newState
             checkGameEnd(newState)
 
             // If it's VS Computer and game is not over, trigger AI move
             if (_gameMode.value == GameMode.VS_COMPUTER && newState.winner == null && !newState.isDraw && newState.currentTurn == _aiPlayer.value) {
-                triggerAIMove(newState)
+                triggerAIMove()
             }
         }
     }
@@ -101,13 +104,15 @@ class GameViewModel(
         updateStats()
     }
 
-    private fun triggerAIMove(state: GameState) {
+    private fun triggerAIMove() {
         viewModelScope.launch {
             isProcessingMove = true
             delay(500) // Delay to make AI feel more natural
-            val aiMove = AIPlayer.getAIMove(state.board, _aiPlayer.value, state.gridSize)
+            val currentState = _gameState.value
+            val aiMove = AIPlayer.getAIMove(currentState.board, _aiPlayer.value, currentState.gridSize)
             if (aiMove != -1) {
-                val newState = GameEngine.makeMove(_gameState.value, aiMove)
+                history.add(currentState)
+                val newState = GameEngine.makeMove(currentState, aiMove)
                 _gameState.value = newState
                 checkGameEnd(newState)
             }
@@ -117,11 +122,12 @@ class GameViewModel(
 
     fun resetGame() {
         _gameState.value = GameState.create(_gridSize.value)
+        history.clear()
         isProcessingMove = false
         
         // If AI is X and it's VS Computer, AI makes first move
         if (_gameMode.value == GameMode.VS_COMPUTER && _aiPlayer.value == Player.X) {
-            triggerAIMove(_gameState.value)
+            triggerAIMove()
         }
     }
 
@@ -142,6 +148,39 @@ class GameViewModel(
         _gameMode.value = mode
         _gridSize.value = gridSize
         resetGame()
+    }
+
+    fun undoMove() {
+        if (history.isEmpty()) return
+
+        val currentState = _gameState.value
+
+        // Decrement stats if the game had ended
+        if (currentState.winner != null) {
+            if (_gameMode.value == GameMode.VS_FRIEND) {
+                statsManager.decrementWins()
+            } else {
+                if (currentState.winner == _aiPlayer.value) {
+                    statsManager.decrementLosses()
+                } else {
+                    statsManager.decrementWins()
+                }
+            }
+        } else if (currentState.isDraw) {
+            statsManager.decrementDraws()
+        }
+
+        // In VS Computer, we usually want to undo back to before the HUMAN's last move.
+        if (_gameMode.value == GameMode.VS_COMPUTER && history.size >= 2) {
+            // Undo AI move and Human move
+            history.removeAt(history.size - 1) // Remove state before AI move
+            _gameState.value = history.removeAt(history.size - 1) // Restore state before Human move
+        } else if (history.isNotEmpty()) {
+            // VS Friend or only one move made: just take back one move
+            _gameState.value = history.removeAt(history.size - 1)
+        }
+        
+        updateStats()
     }
 
     fun toggleSound() {
