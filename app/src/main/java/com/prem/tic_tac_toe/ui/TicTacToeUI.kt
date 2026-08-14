@@ -102,17 +102,19 @@ fun GameScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            Spacer(modifier = Modifier.height(8.dp))
+
             // Stats Display
             StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Status Indicator
             StatusIndicator(gameState)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Dynamic NxN Grid
             TicTacToeGrid(

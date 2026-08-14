@@ -118,7 +118,7 @@ fun GridSelectScreen(
                 starCount = 1,
                 maxStars = 3,
                 sizeLabel = "3 × 3",
-                description = "The original game —\nperfect for quick matches",
+                description = "Quick & classic fun",
                 boardColors = BoardCardColors(
                     bgGradient = listOf(Color(0xFF1A237E), Color(0xFF0D47A1)),
                     xColor = XColor,
@@ -140,7 +140,7 @@ fun GridSelectScreen(
                 starCount = 2,
                 maxStars = 3,
                 sizeLabel = "4 × 4",
-                description = "More cells, more strategy\n— think ahead",
+                description = "More strategy, think ahead",
                 boardColors = BoardCardColors(
                     bgGradient = listOf(Color(0xFF1A237E), Color(0xFF283593)),
                     xColor = Color(0xFFFF5252),
@@ -162,7 +162,7 @@ fun GridSelectScreen(
                 starCount = 3,
                 maxStars = 3,
                 sizeLabel = "5 × 5",
-                description = "Maximum complexity —\nfor true masters only",
+                description = "For true masters only",
                 boardColors = BoardCardColors(
                     bgGradient = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2)),
                     xColor = Color(0xFFFF80AB),
