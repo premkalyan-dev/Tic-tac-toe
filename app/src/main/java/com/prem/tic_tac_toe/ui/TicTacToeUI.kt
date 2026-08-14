@@ -1,20 +1,23 @@
 package com.prem.tic_tac_toe.ui
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,66 +25,77 @@ import androidx.compose.ui.unit.sp
 import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.logic.GameState
 import com.prem.tic_tac_toe.logic.Player
+import com.prem.tic_tac_toe.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicTacToeScreen(viewModel: GameViewModel) {
+fun GameScreen(
+    viewModel: GameViewModel,
+    onBack: () -> Unit,
+    onSettingsClick: () -> Unit
+) {
     val gameState by viewModel.gameState.collectAsState()
     val gameMode by viewModel.gameMode.collectAsState()
+    val gridSize by viewModel.gridSize.collectAsState()
     val stats by viewModel.stats.collectAsState()
-    val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
-    
-    var showResetDialog by remember { mutableStateOf(false) }
-    var showSettingsDialog by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    var showResetDialog by remember { mutableStateOf(false) }
+
+    val gridLabel = "${gridSize}×${gridSize}"
+    val modeLabel = when (gameMode) {
+        GameMode.VS_FRIEND -> "vs Friend"
+        GameMode.VS_COMPUTER -> "vs Computer"
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(
+                            text = "Three Win",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = "$gridLabel  •  $modeLabel",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to Home"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(padding)
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(16.dp))
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Tic Tac Toe",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Stats Display
             StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Game Mode Toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                FilterChip(
-                    selected = gameMode == GameMode.VS_FRIEND,
-                    onClick = { viewModel.setGameMode(GameMode.VS_FRIEND) },
-                    label = { Text("vs Friend") }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                FilterChip(
-                    selected = gameMode == GameMode.VS_COMPUTER,
-                    onClick = { viewModel.setGameMode(GameMode.VS_COMPUTER) },
-                    label = { Text("vs Computer") }
-                )
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -90,36 +104,53 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3x3 Grid
+            // Dynamic NxN Grid
             TicTacToeGrid(
                 gameState = gameState,
+                gridSize = gridSize,
                 onCellClick = { viewModel.onCellClick(it) }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Play Again Button
+            // Play Again / New Game Button
             if (gameState.winner != null || gameState.isDraw) {
+                // Entrance animation for button
+                val buttonScale = remember { Animatable(0f) }
+                LaunchedEffect(Unit) {
+                    buttonScale.animateTo(
+                        1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
+                }
+
                 Button(
                     onClick = { viewModel.resetGame() },
-                    modifier = Modifier.height(56.dp).fillMaxWidth(0.6f)
+                    modifier = Modifier
+                        .height(56.dp)
+                        .fillMaxWidth(0.7f)
+                        .scale(buttonScale.value),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CoralOrange
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
-                    Text("Play Again", fontSize = 18.sp)
+                    Text(
+                        "Play Again",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
                 }
             }
         }
-
-        // Settings Button
-        TextButton(
-            onClick = { showSettingsDialog = true },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            Text("Settings")
-        }
     }
 
+    // Reset Stats Dialog
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
@@ -140,61 +171,101 @@ fun TicTacToeScreen(viewModel: GameViewModel) {
             }
         )
     }
-
-    if (showSettingsDialog) {
-        AlertDialog(
-            onDismissRequest = { showSettingsDialog = false },
-            title = { Text("Settings") },
-            text = {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Sound Effects")
-                        Switch(
-                            checked = isSoundEnabled,
-                            onCheckedChange = { viewModel.toggleSound() }
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text("Your Mark (vs Computer)", style = MaterialTheme.typography.titleMedium)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        val currentMark = viewModel.getHumanPlayerMark()
-                        FilterChip(
-                            selected = currentMark == Player.X,
-                            onClick = { viewModel.setHumanPlayerMark(Player.X) },
-                            label = { Text("Play as X") }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        FilterChip(
-                            selected = currentMark == Player.O,
-                            onClick = { viewModel.setHumanPlayerMark(Player.O) },
-                            label = { Text("Play as O") }
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showSettingsDialog = false }) {
-                    Text("Close")
-                }
-            }
-        )
-    }
 }
 
+// ─── Settings Dialog (extracted for sharing) ───
 @Composable
-fun StatsHeader(stats: com.prem.tic_tac_toe.data.StatsManager.GameStats, onResetClick: () -> Unit) {
+fun SettingsDialog(
+    isSoundEnabled: Boolean,
+    currentMark: Player,
+    onToggleSound: () -> Unit,
+    onSetMark: (Player) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Settings", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Sound Effects")
+                    Switch(
+                        checked = isSoundEnabled,
+                        onCheckedChange = { onToggleSound() },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = CoralOrange
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    "Your Mark (vs Computer)",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    FilterChip(
+                        selected = currentMark == Player.X,
+                        onClick = { onSetMark(Player.X) },
+                        label = {
+                            Text(
+                                "Play as X",
+                                fontWeight = if (currentMark == Player.X) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = XColor.copy(alpha = 0.15f),
+                            selectedLabelColor = XColor
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    FilterChip(
+                        selected = currentMark == Player.O,
+                        onClick = { onSetMark(Player.O) },
+                        label = {
+                            Text(
+                                "Play as O",
+                                fontWeight = if (currentMark == Player.O) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = OColor.copy(alpha = 0.15f),
+                            selectedLabelColor = OColor
+                        )
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close", color = CoralOrange)
+            }
+        }
+    )
+}
+
+// ─── Stats Header ───
+@Composable
+fun StatsHeader(
+    stats: com.prem.tic_tac_toe.data.StatsManager.GameStats,
+    onResetClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -203,68 +274,119 @@ fun StatsHeader(stats: com.prem.tic_tac_toe.data.StatsManager.GameStats, onReset
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(text = "Wins: ${stats.wins}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Losses: ${stats.losses}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Draws: ${stats.draws}", style = MaterialTheme.typography.bodyLarge)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                StatItem(label = "Wins", value = stats.wins, color = WinGreen)
+                StatItem(label = "Losses", value = stats.losses, color = LossRed)
+                StatItem(label = "Draws", value = stats.draws, color = DrawAmber)
             }
             TextButton(onClick = onResetClick) {
-                Text("Reset Stats", color = MaterialTheme.colorScheme.error)
+                Text("Reset", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
             }
         }
     }
 }
 
 @Composable
+private fun StatItem(label: String, value: Int, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "$value",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+// ─── Status Indicator ───
+@Composable
 fun StatusIndicator(state: GameState) {
     val statusText = when {
-        state.winner != null -> "Winner: ${state.winner}"
-        state.isDraw -> "It's a Draw!"
+        state.winner != null -> "🎉 ${state.winner} Wins!"
+        state.isDraw -> "🤝 It's a Draw!"
         else -> "${state.currentTurn}'s Turn"
     }
 
-    Text(
-        text = statusText,
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Medium,
-        color = if (state.winner != null) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
-    )
+    val statusColor = when {
+        state.winner != null -> WinGreen
+        state.isDraw -> DrawAmber
+        state.currentTurn == Player.X -> XColor
+        else -> OColor
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = statusColor.copy(alpha = 0.1f)
+        )
+    ) {
+        Text(
+            text = statusText,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = statusColor,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
 }
 
+// ─── Dynamic NxN Grid ───
 @Composable
 fun TicTacToeGrid(
     gameState: GameState,
+    gridSize: Int,
     onCellClick: (Int) -> Unit
 ) {
+    val maxGridWidth = 360.dp
+
     Column(
         modifier = Modifier
+            .widthIn(max = maxGridWidth)
             .aspectRatio(1f)
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp))
-            .padding(12.dp)
+            .shadow(8.dp, RoundedCornerShape(20.dp))
+            .background(CardWhite, RoundedCornerShape(20.dp))
+            .padding(10.dp)
     ) {
-        for (row in 0..2) {
+        for (row in 0 until gridSize) {
             Row(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                for (col in 0..2) {
-                    val index = row * 3 + col
+                for (col in 0 until gridSize) {
+                    val index = row * gridSize + col
                     val isWinningCell = gameState.winningLine?.contains(index) == true
-                    
+
+                    val cellColor = when {
+                        isWinningCell -> WinGreenLight
+                        else -> LightGray.copy(alpha = 0.5f)
+                    }
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(4.dp)
-                            .background(
-                                color = if (isWinningCell) Color(0xFFC8E6C9) else MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(8.dp)
-                            )
+                            .padding(3.dp)
+                            .clip(RoundedCornerShape(if (gridSize <= 3) 12.dp else 8.dp))
+                            .background(cellColor)
                             .clickable { onCellClick(index) },
                         contentAlignment = Alignment.Center
                     ) {
-                        AnimatedMark(player = gameState.board[index])
+                        AnimatedMark(
+                            player = gameState.board[index],
+                            gridSize = gridSize
+                        )
                     }
                 }
             }
@@ -272,8 +394,9 @@ fun TicTacToeGrid(
     }
 }
 
+// ─── Animated Mark ───
 @Composable
-fun AnimatedMark(player: Player?) {
+fun AnimatedMark(player: Player?, gridSize: Int) {
     if (player == null) return
 
     val scale = remember { Animatable(0f) }
@@ -288,11 +411,19 @@ fun AnimatedMark(player: Player?) {
         )
     }
 
+    // Scale font size based on grid size
+    val fontSize = when (gridSize) {
+        3 -> 48.sp
+        4 -> 36.sp
+        5 -> 28.sp
+        else -> 48.sp
+    }
+
     Text(
         text = player.name,
-        fontSize = 48.sp,
+        fontSize = fontSize,
         fontWeight = FontWeight.ExtraBold,
-        color = if (player == Player.X) Color(0xFFE91E63) else Color(0xFF2196F3),
+        color = if (player == Player.X) XColor else OColor,
         modifier = Modifier.scale(scale.value)
     )
 }

@@ -35,6 +35,9 @@ class GameViewModel(
     private val _gameMode = MutableStateFlow(GameMode.VS_COMPUTER)
     val gameMode: StateFlow<GameMode> = _gameMode.asStateFlow()
 
+    private val _gridSize = MutableStateFlow(3)
+    val gridSize: StateFlow<Int> = _gridSize.asStateFlow()
+
     private val _aiPlayer = MutableStateFlow(
         if (settingsManager.getPreferredPlayerMark() == Player.X) Player.O else Player.X
     )
@@ -102,7 +105,7 @@ class GameViewModel(
         viewModelScope.launch {
             isProcessingMove = true
             delay(500) // Delay to make AI feel more natural
-            val aiMove = AIPlayer.getAIMove(state.board, _aiPlayer.value)
+            val aiMove = AIPlayer.getAIMove(state.board, _aiPlayer.value, state.gridSize)
             if (aiMove != -1) {
                 val newState = GameEngine.makeMove(_gameState.value, aiMove)
                 _gameState.value = newState
@@ -113,7 +116,7 @@ class GameViewModel(
     }
 
     fun resetGame() {
-        _gameState.value = GameState()
+        _gameState.value = GameState.create(_gridSize.value)
         isProcessingMove = false
         
         // If AI is X and it's VS Computer, AI makes first move
@@ -124,6 +127,20 @@ class GameViewModel(
 
     fun setGameMode(mode: GameMode) {
         _gameMode.value = mode
+        resetGame()
+    }
+
+    fun setGridSize(size: Int) {
+        _gridSize.value = size
+        resetGame()
+    }
+
+    /**
+     * Configure game from navigation parameters and start.
+     */
+    fun startGame(mode: GameMode, gridSize: Int) {
+        _gameMode.value = mode
+        _gridSize.value = gridSize
         resetGame()
     }
 
