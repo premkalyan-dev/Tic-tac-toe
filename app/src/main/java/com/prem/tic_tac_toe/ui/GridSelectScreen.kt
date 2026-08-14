@@ -1,14 +1,17 @@
 package com.prem.tic_tac_toe.ui
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
@@ -18,14 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,11 +47,6 @@ fun GridSelectScreen(
         GameMode.VS_COMPUTER -> "Playing with Computer"
     }
 
-    val modeEmoji = when (gameMode) {
-        GameMode.VS_FRIEND -> "👫"
-        GameMode.VS_COMPUTER -> "🤖"
-    }
-
     // Entrance animation
     val animatedProgress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
@@ -57,13 +59,7 @@ fun GridSelectScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "$modeEmoji  $modeTitle",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp
-                    )
-                },
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -82,56 +78,53 @@ fun GridSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(0.3f))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Logo at top
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(18.dp))
-                    .shadow(8.dp, RoundedCornerShape(18.dp))
-                    .graphicsLayer {
-                        scaleX = animatedProgress.value
-                        scaleY = animatedProgress.value
-                    }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Header
             Text(
-                text = "Choose Your Grid",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "Choose Board Size",
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.graphicsLayer { alpha = animatedProgress.value }
+                modifier = Modifier.graphicsLayer {
+                    alpha = animatedProgress.value
+                    translationY = (1f - animatedProgress.value) * 30f
+                }
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Select a grid size to start playing",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Pick your challenge level",
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(top = 6.dp, bottom = 28.dp)
-                    .graphicsLayer { alpha = animatedProgress.value }
+                modifier = Modifier.graphicsLayer {
+                    alpha = animatedProgress.value
+                    translationY = (1f - animatedProgress.value) * 20f
+                }
             )
 
-            Spacer(modifier = Modifier.weight(0.2f))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // 3x3 Classic
-            GridLevelCard(
+            // 3×3 Classic
+            BoardCard(
                 gridSize = 3,
-                title = "3 × 3  Classic",
-                subtitle = "The Original • Quick Fun",
+                badgeLabel = "Classic",
+                badgeColor = Level3x3Color,
                 starCount = 1,
                 maxStars = 3,
-                gradientColors = listOf(Color(0xFF66BB6A), Color(0xFF2E7D32)),
-                accentColor = Level3x3Color,
+                sizeLabel = "3 × 3",
+                description = "The original game —\nperfect for quick matches",
+                boardColors = BoardCardColors(
+                    bgGradient = listOf(Color(0xFF1A237E), Color(0xFF0D47A1)),
+                    xColor = XColor,
+                    oColor = OColor,
+                    gridLineColor = Color(0xFF00E5FF)
+                ),
                 onClick = { onGridSelected(3) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0f
@@ -139,15 +132,21 @@ fun GridSelectScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4x4 Challenge
-            GridLevelCard(
+            // 4×4 Advanced
+            BoardCard(
                 gridSize = 4,
-                title = "4 × 4  Challenge",
-                subtitle = "Step It Up • More Strategy",
+                badgeLabel = "Advanced",
+                badgeColor = Level4x4Color,
                 starCount = 2,
                 maxStars = 3,
-                gradientColors = listOf(Color(0xFFFFA726), Color(0xFFE65100)),
-                accentColor = Level4x4Color,
+                sizeLabel = "4 × 4",
+                description = "More cells, more strategy\n— think ahead",
+                boardColors = BoardCardColors(
+                    bgGradient = listOf(Color(0xFF1A237E), Color(0xFF283593)),
+                    xColor = Color(0xFFFF5252),
+                    oColor = Color(0xFF69F0AE),
+                    gridLineColor = Color(0xFFFFD740)
+                ),
                 onClick = { onGridSelected(4) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0.1f
@@ -155,34 +154,50 @@ fun GridSelectScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 5x5 Master
-            GridLevelCard(
+            // 5×5 Expert
+            BoardCard(
                 gridSize = 5,
-                title = "5 × 5  Master",
-                subtitle = "Ultimate Battle • Brain Teaser",
+                badgeLabel = "Expert",
+                badgeColor = Color(0xFFF44336),
                 starCount = 3,
                 maxStars = 3,
-                gradientColors = listOf(Color(0xFFAB47BC), Color(0xFF6A1B9A)),
-                accentColor = Level5x5Color,
+                sizeLabel = "5 × 5",
+                description = "Maximum complexity —\nfor true masters only",
+                boardColors = BoardCardColors(
+                    bgGradient = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2)),
+                    xColor = Color(0xFFFF80AB),
+                    oColor = Color(0xFFFFD740),
+                    gridLineColor = Color(0xFFE040FB)
+                ),
                 onClick = { onGridSelected(5) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0.2f
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
+// ─── Data class for board icon colors ───
+private data class BoardCardColors(
+    val bgGradient: List<Color>,
+    val xColor: Color,
+    val oColor: Color,
+    val gridLineColor: Color
+)
+
+// ─── Board Selection Card (matching reference design) ───
 @Composable
-private fun GridLevelCard(
+private fun BoardCard(
     gridSize: Int,
-    title: String,
-    subtitle: String,
+    badgeLabel: String,
+    badgeColor: Color,
     starCount: Int,
     maxStars: Int,
-    gradientColors: List<Color>,
-    accentColor: Color,
+    sizeLabel: String,
+    description: String,
+    boardColors: BoardCardColors,
     onClick: () -> Unit,
     animatedProgress: Float,
     delayFactor: Float
@@ -191,7 +206,7 @@ private fun GridLevelCard(
 
     var isPressed by remember { mutableStateOf(false) }
     val cardScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
+        targetValue = if (isPressed) 0.97f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessHigh
@@ -202,7 +217,6 @@ private fun GridLevelCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(110.dp)
             .scale(cardScale)
             .graphicsLayer {
                 alpha = effectiveProgress
@@ -216,108 +230,186 @@ private fun GridLevelCard(
                 onClick()
             },
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .background(brush = Brush.horizontalGradient(gradientColors))
-                .padding(horizontal = 20.dp),
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Mini grid preview
-            MiniGridPreview(
+            // Board icon
+            BoardIcon(
                 gridSize = gridSize,
-                modifier = Modifier.size(60.dp)
+                colors = boardColors,
+                modifier = Modifier.size(80.dp)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            // Text content
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                // Difficulty stars
-                Row {
-                    for (i in 1..maxStars) {
-                        Icon(
-                            imageVector = if (i <= starCount) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                            contentDescription = null,
-                            tint = if (i <= starCount) Color(0xFFFFD700) else Color.White.copy(alpha = 0.4f),
-                            modifier = Modifier.size(18.dp)
+                // Badge + Stars row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = badgeColor.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = badgeLabel,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = badgeColor
                         )
-                        if (i < maxStars) Spacer(modifier = Modifier.width(2.dp))
                     }
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = when (starCount) {
-                            1 -> "Easy"
-                            2 -> "Medium"
-                            else -> "Hard"
-                        },
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFFFD700)
-                    )
+
+                    // Stars
+                    Row {
+                        for (i in 1..maxStars) {
+                            Icon(
+                                imageVector = if (i <= starCount) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                contentDescription = null,
+                                tint = if (i <= starCount) Color(0xFFFFB300) else Color(0xFFE0E0E0),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Grid size label
+                Text(
+                    text = sizeLabel,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Description
+                Text(
+                    text = description,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 18.sp
+                )
             }
 
-            // Grid size badge
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = Color.White.copy(alpha = 0.2f)
-            ) {
-                Text(
-                    text = "${gridSize}×${gridSize}",
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
-                )
-            }
+            // Chevron arrow
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Select",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(28.dp)
+            )
         }
     }
 }
 
+// ─── Canvas-drawn board icon ───
 @Composable
-private fun MiniGridPreview(gridSize: Int, modifier: Modifier = Modifier) {
+private fun BoardIcon(
+    gridSize: Int,
+    colors: BoardCardColors,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.White.copy(alpha = 0.15f))
-            .padding(5.dp)
+            .shadow(6.dp, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(brush = Brush.linearGradient(colors.bgGradient))
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
         ) {
-            for (row in 0 until gridSize) {
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    for (col in 0 until gridSize) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .padding(1.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(Color.White.copy(alpha = 0.3f))
-                        )
-                    }
+            val cellSize = size.width / gridSize
+            val lineWidth = 1.5f
+
+            // Draw grid lines
+            for (i in 1 until gridSize) {
+                // Vertical lines
+                drawLine(
+                    color = colors.gridLineColor.copy(alpha = 0.6f),
+                    start = Offset(i * cellSize, 0f),
+                    end = Offset(i * cellSize, size.height),
+                    strokeWidth = lineWidth
+                )
+                // Horizontal lines
+                drawLine(
+                    color = colors.gridLineColor.copy(alpha = 0.6f),
+                    start = Offset(0f, i * cellSize),
+                    end = Offset(size.width, i * cellSize),
+                    strokeWidth = lineWidth
+                )
+            }
+
+            // Draw some X and O marks to make it look like a game board
+            val markPadding = cellSize * 0.25f
+            val markStroke = 2.5f
+
+            // Predefined mark positions based on grid size
+            val xPositions: List<Pair<Int, Int>>
+            val oPositions: List<Pair<Int, Int>>
+
+            when (gridSize) {
+                3 -> {
+                    xPositions = listOf(0 to 0, 1 to 1, 2 to 0)
+                    oPositions = listOf(0 to 1, 1 to 0, 2 to 2)
                 }
+                4 -> {
+                    xPositions = listOf(0 to 0, 1 to 2, 2 to 1, 3 to 3)
+                    oPositions = listOf(0 to 2, 1 to 1, 2 to 3, 3 to 0)
+                }
+                5 -> {
+                    xPositions = listOf(0 to 0, 1 to 3, 2 to 2, 3 to 1, 4 to 4)
+                    oPositions = listOf(0 to 4, 1 to 1, 2 to 0, 3 to 3, 4 to 2)
+                }
+                else -> {
+                    xPositions = emptyList()
+                    oPositions = emptyList()
+                }
+            }
+
+            // Draw X marks
+            for ((row, col) in xPositions) {
+                val cx = col * cellSize + cellSize / 2
+                val cy = row * cellSize + cellSize / 2
+                val half = cellSize / 2 - markPadding
+                drawLine(
+                    color = colors.xColor,
+                    start = Offset(cx - half, cy - half),
+                    end = Offset(cx + half, cy + half),
+                    strokeWidth = markStroke,
+                    cap = StrokeCap.Round
+                )
+                drawLine(
+                    color = colors.xColor,
+                    start = Offset(cx + half, cy - half),
+                    end = Offset(cx - half, cy + half),
+                    strokeWidth = markStroke,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            // Draw O marks
+            for ((row, col) in oPositions) {
+                val cx = col * cellSize + cellSize / 2
+                val cy = row * cellSize + cellSize / 2
+                val radius = cellSize / 2 - markPadding
+                drawCircle(
+                    color = colors.oColor,
+                    radius = radius,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = markStroke)
+                )
             }
         }
     }
