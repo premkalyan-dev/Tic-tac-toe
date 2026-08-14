@@ -42,7 +42,8 @@ fun HomeScreen(
     onPlayFriend: () -> Unit,
     onPlayComputer: () -> Unit,
     onSettingsClick: () -> Unit,
-    onResetStats: () -> Unit
+    onResetStats: () -> Unit,
+    bannerAd: @Composable () -> Unit = {}
 ) {
     // Entrance animation
     val animatedProgress = remember { Animatable(0f) }
@@ -65,12 +66,13 @@ fun HomeScreen(
         label = "floatOffset"
     )
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
+      Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,16 +80,16 @@ fun HomeScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Animated Logo
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
                 contentDescription = "Three Win Logo",
                 modifier = Modifier
-                    .size(110.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .shadow(12.dp, RoundedCornerShape(24.dp))
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .shadow(8.dp, RoundedCornerShape(20.dp))
                     .graphicsLayer {
                         translationY = floatOffset
                         scaleX = animatedProgress.value
@@ -95,12 +97,12 @@ fun HomeScreen(
                     }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // App Title
             Text(
                 text = "Three Win",
-                fontSize = 34.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = CoralOrange,
                 modifier = Modifier.graphicsLayer {
@@ -119,7 +121,7 @@ fun HomeScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // ─── Achievements / Stats Section ───
             AchievementsSection(
@@ -128,7 +130,7 @@ fun HomeScreen(
                 onResetStats = onResetStats
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // ─── Play Mode Section ───
             Text(
@@ -161,7 +163,7 @@ fun HomeScreen(
                 animatedProgress = animatedProgress.value
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Settings icon
@@ -176,6 +178,17 @@ fun HomeScreen(
                 contentDescription = "Settings",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+      }
+
+        // Banner Ad Footer
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            bannerAd()
         }
     }
 }

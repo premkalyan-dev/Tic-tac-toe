@@ -170,13 +170,25 @@ class GameViewModel(
             statsManager.decrementDraws()
         }
 
-        // In VS Computer, we usually want to undo back to before the HUMAN's last move.
-        if (_gameMode.value == GameMode.VS_COMPUTER && history.size >= 2) {
-            // Undo AI move and Human move
-            history.removeAt(history.size - 1) // Remove state before AI move
-            _gameState.value = history.removeAt(history.size - 1) // Restore state before Human move
-        } else if (history.isNotEmpty()) {
-            // VS Friend or only one move made: just take back one move
+        if (_gameMode.value == GameMode.VS_COMPUTER) {
+            // Determine who made the last move by checking who just played.
+            // currentState.currentTurn is the NEXT player to move,
+            // so the last move was made by the OTHER player.
+            val lastMoveBy = if (currentState.currentTurn == Player.X) Player.O else Player.X
+
+            if (lastMoveBy == _aiPlayer.value && history.size >= 2) {
+                // Last move was by AI (e.g., AI won or draw after AI move).
+                // Undo both the AI move and the preceding human move.
+                history.removeAt(history.size - 1) // Remove state before AI move
+                _gameState.value = history.removeAt(history.size - 1) // Restore state before human move
+            } else {
+                // Last move was by human (e.g., human won).
+                // Undo only the human's move.
+                _gameState.value = history.removeAt(history.size - 1)
+                // Now it's human's turn again, no need to trigger AI.
+            }
+        } else {
+            // VS Friend: just undo one move
             _gameState.value = history.removeAt(history.size - 1)
         }
         

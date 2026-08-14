@@ -232,7 +232,10 @@ fun GameResultDialog(
             }
         },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Button(
                     onClick = onPlayAgain,
                     modifier = Modifier.fillMaxWidth(),
@@ -241,7 +244,7 @@ fun GameResultDialog(
                 ) {
                     Text("Play Again", color = Color.White)
                 }
-                
+
                 OutlinedButton(
                     onClick = onUndo,
                     modifier = Modifier.fillMaxWidth(),
@@ -250,14 +253,13 @@ fun GameResultDialog(
                 ) {
                     Text("Undo Last Move", color = MaterialTheme.colorScheme.primary)
                 }
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Close", color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Close", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     )
