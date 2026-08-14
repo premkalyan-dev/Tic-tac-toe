@@ -49,6 +49,12 @@ class GameViewModel(
     private val _isSoundEnabled = MutableStateFlow(settingsManager.isSoundEnabled())
     val isSoundEnabled: StateFlow<Boolean> = _isSoundEnabled.asStateFlow()
 
+    private val _isVibrationEnabled = MutableStateFlow(settingsManager.isVibrationEnabled())
+    val isVibrationEnabled: StateFlow<Boolean> = _isVibrationEnabled.asStateFlow()
+
+    private val _appTheme = MutableStateFlow(settingsManager.getAppTheme())
+    val appTheme: StateFlow<String> = _appTheme.asStateFlow()
+
     private val history = mutableListOf<GameState>()
 
     private var isProcessingMove = false
@@ -199,6 +205,17 @@ class GameViewModel(
         val newState = !_isSoundEnabled.value
         settingsManager.setSoundEnabled(newState)
         _isSoundEnabled.value = newState
+    }
+
+    fun toggleVibration() {
+        val newState = !_isVibrationEnabled.value
+        settingsManager.setVibrationEnabled(newState)
+        _isVibrationEnabled.value = newState
+    }
+
+    fun setAppTheme(theme: String) {
+        settingsManager.setAppTheme(theme)
+        _appTheme.value = theme
     }
 
     fun setHumanPlayerMark(player: Player) {

@@ -27,6 +27,8 @@ fun AppNavigation(viewModel: GameViewModel) {
     // Settings dialog state (shared across screens)
     var showSettingsDialog by remember { mutableStateOf(false) }
     val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
+    val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
+    val appTheme by viewModel.appTheme.collectAsState()
     val stats by viewModel.stats.collectAsState()
 
     NavHost(
@@ -43,8 +45,7 @@ fun AppNavigation(viewModel: GameViewModel) {
                 onPlayComputer = {
                     navController.navigate(Routes.gridSelect("computer"))
                 },
-                onSettingsClick = { showSettingsDialog = true },
-                onResetStats = { viewModel.resetStats() }
+                onSettingsClick = { showSettingsDialog = true }
             )
         }
 
@@ -96,9 +97,14 @@ fun AppNavigation(viewModel: GameViewModel) {
     if (showSettingsDialog) {
         SettingsDialog(
             isSoundEnabled = isSoundEnabled,
+            isVibrationEnabled = isVibrationEnabled,
             currentMark = viewModel.getHumanPlayerMark(),
+            currentTheme = appTheme,
             onToggleSound = { viewModel.toggleSound() },
+            onToggleVibration = { viewModel.toggleVibration() },
             onSetMark = { viewModel.setHumanPlayerMark(it) },
+            onSetTheme = { viewModel.setAppTheme(it) },
+            onResetStats = { viewModel.resetStats() },
             onDismiss = { showSettingsDialog = false }
         )
     }

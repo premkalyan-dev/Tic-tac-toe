@@ -6,7 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Settings
@@ -19,6 +21,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -116,11 +120,19 @@ fun GameScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            val haptic = LocalHapticFeedback.current
+            val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
+
             // Dynamic NxN Grid
             TicTacToeGrid(
                 gameState = gameState,
                 gridSize = gridSize,
-                onCellClick = { viewModel.onCellClick(it) }
+                onCellClick = {
+                    if (isVibrationEnabled) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                    viewModel.onCellClick(it)
+                }
             )
         }
     }
@@ -271,16 +283,26 @@ fun GameResultDialog(
 @Composable
 fun SettingsDialog(
     isSoundEnabled: Boolean,
+    isVibrationEnabled: Boolean,
     currentMark: Player,
+    currentTheme: String,
     onToggleSound: () -> Unit,
+    onToggleVibration: () -> Unit,
     onSetMark: (Player) -> Unit,
+    onSetTheme: (String) -> Unit,
+    onResetStats: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var showResetConfirm by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Settings", fontWeight = FontWeight.Bold) },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                // ─── Sound Toggle ───
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -292,16 +314,39 @@ fun SettingsDialog(
                         onCheckedChange = { onToggleSound() },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
-                            checkedTrackColor = CoralOrange
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
+                // ─── Vibration Toggle ───
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Vibration")
+                    Switch(
+                        checked = isVibrationEnabled,
+                        onCheckedChange = { onToggleVibration() },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 14.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                )
+
+                // ─── Player Mark ───
                 Text(
                     "Your Mark (vs Computer)",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -339,14 +384,152 @@ fun SettingsDialog(
                         )
                     )
                 }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 14.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                )
+
+                // ─── App Theme ───
+                Text(
+                    "App Theme",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                val themes = listOf(
+                    Triple("default", "Default", Color(0xFFFF6B35)),
+                    Triple("ocean", "Ocean", Color(0xFF0288D1)),
+                    Triple("forest", "Forest", Color(0xFF2E7D32)),
+                    Triple("sunset", "Sunset", Color(0xFFE65100)),
+                    Triple("dark", "Dark", Color(0xFF424242))
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    // First row: 3 themes
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        themes.take(3).forEach { (key, label, color) ->
+                            val isSelected = currentTheme == key
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { onSetTheme(key) },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, color) else null
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                            .background(color)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = label,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    // Second row: 2 themes
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        themes.drop(3).forEach { (key, label, color) ->
+                            val isSelected = currentTheme == key
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { onSetTheme(key) },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, color) else null
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                            .background(color)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = label,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        // Spacer to balance the row
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 14.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                )
+
+                // ─── Reset Stats ───
+                OutlinedButton(
+                    onClick = { showResetConfirm = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, LossRed),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LossRed)
+                ) {
+                    Text("Reset Stats", fontWeight = FontWeight.SemiBold)
+                }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close", color = CoralOrange)
+                Text("Close", color = MaterialTheme.colorScheme.primary)
             }
         }
     )
+
+    // Reset Stats confirmation
+    if (showResetConfirm) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text("Reset Stats") },
+            text = { Text("Are you sure you want to clear all your wins, losses, and draws?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onResetStats()
+                    showResetConfirm = false
+                }) {
+                    Text("Reset", color = LossRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 // ─── Stats Header ───

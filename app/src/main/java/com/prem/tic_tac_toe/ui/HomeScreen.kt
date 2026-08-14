@@ -42,7 +42,6 @@ fun HomeScreen(
     onPlayFriend: () -> Unit,
     onPlayComputer: () -> Unit,
     onSettingsClick: () -> Unit,
-    onResetStats: () -> Unit,
     bannerAd: @Composable () -> Unit = {}
 ) {
     // Entrance animation
@@ -126,8 +125,7 @@ fun HomeScreen(
             // ─── Achievements / Stats Section ───
             AchievementsSection(
                 stats = stats,
-                animatedProgress = animatedProgress.value,
-                onResetStats = onResetStats
+                animatedProgress = animatedProgress.value
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -197,8 +195,7 @@ fun HomeScreen(
 @Composable
 private fun AchievementsSection(
     stats: StatsManager.GameStats,
-    animatedProgress: Float,
-    onResetStats: () -> Unit
+    animatedProgress: Float
 ) {
     val totalGames = stats.wins + stats.losses + stats.draws
     val winRate = if (totalGames > 0) (stats.wins * 100f / totalGames) else 0f
@@ -212,8 +209,6 @@ private fun AchievementsSection(
         totalGames > 0 -> "🌱 Beginner" to Color(0xFF9E9E9E)
         else -> "🎮 New Player" to Color(0xFF9E9E9E)
     }
-
-    var showResetDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -229,30 +224,21 @@ private fun AchievementsSection(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
-            // Header: Achievement title + Reset
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.EmojiEvents,
-                        contentDescription = null,
-                        tint = achievementIcon,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = achievementTitle,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                TextButton(onClick = { showResetDialog = true }) {
-                    Text("Reset", fontSize = 12.sp, color = LossRed)
-                }
+            // Header: Achievement title
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.EmojiEvents,
+                    contentDescription = null,
+                    tint = achievementIcon,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = achievementTitle,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -322,28 +308,6 @@ private fun AchievementsSection(
                 )
             }
         }
-    }
-
-    // Reset confirmation dialog
-    if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Stats") },
-            text = { Text("Are you sure you want to clear all your wins, losses, and draws?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onResetStats()
-                    showResetDialog = false
-                }) {
-                    Text("Reset", color = LossRed)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 }
 
