@@ -1,6 +1,7 @@
 package com.prem.tic_tac_toe.ui
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,19 +9,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,6 +38,11 @@ fun GridSelectScreen(
     val modeTitle = when (gameMode) {
         GameMode.VS_FRIEND -> "Playing with Friend"
         GameMode.VS_COMPUTER -> "Playing with Computer"
+    }
+
+    val modeEmoji = when (gameMode) {
+        GameMode.VS_FRIEND -> "👫"
+        GameMode.VS_COMPUTER -> "🤖"
     }
 
     // Entrance animation
@@ -49,8 +59,9 @@ fun GridSelectScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = modeTitle,
-                        fontWeight = FontWeight.SemiBold
+                        text = "$modeEmoji  $modeTitle",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp
                     )
                 },
                 navigationIcon = {
@@ -71,20 +82,34 @@ fun GridSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.weight(0.5f))
+            Spacer(modifier = Modifier.weight(0.3f))
+
+            // Logo at top
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .shadow(8.dp, RoundedCornerShape(18.dp))
+                    .graphicsLayer {
+                        scaleX = animatedProgress.value
+                        scaleY = animatedProgress.value
+                    }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Choose Your Grid",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                }
+                modifier = Modifier.graphicsLayer { alpha = animatedProgress.value }
             )
 
             Text(
@@ -92,19 +117,21 @@ fun GridSelectScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
-                    .padding(top = 8.dp, bottom = 32.dp)
-                    .graphicsLayer {
-                        alpha = animatedProgress.value
-                    }
+                    .padding(top = 6.dp, bottom = 28.dp)
+                    .graphicsLayer { alpha = animatedProgress.value }
             )
+
+            Spacer(modifier = Modifier.weight(0.2f))
 
             // 3x3 Classic
             GridLevelCard(
                 gridSize = 3,
                 title = "3 × 3  Classic",
-                subtitle = "The Original",
-                difficulty = "Easy",
-                gradientColors = listOf(Level3x3Color, Color(0xFF2E7D32)),
+                subtitle = "The Original • Quick Fun",
+                starCount = 1,
+                maxStars = 3,
+                gradientColors = listOf(Color(0xFF66BB6A), Color(0xFF2E7D32)),
+                accentColor = Level3x3Color,
                 onClick = { onGridSelected(3) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0f
@@ -116,9 +143,11 @@ fun GridSelectScreen(
             GridLevelCard(
                 gridSize = 4,
                 title = "4 × 4  Challenge",
-                subtitle = "Step It Up",
-                difficulty = "Medium",
-                gradientColors = listOf(Level4x4Color, Color(0xFFE65100)),
+                subtitle = "Step It Up • More Strategy",
+                starCount = 2,
+                maxStars = 3,
+                gradientColors = listOf(Color(0xFFFFA726), Color(0xFFE65100)),
+                accentColor = Level4x4Color,
                 onClick = { onGridSelected(4) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0.1f
@@ -130,9 +159,11 @@ fun GridSelectScreen(
             GridLevelCard(
                 gridSize = 5,
                 title = "5 × 5  Master",
-                subtitle = "Ultimate Battle",
-                difficulty = "Hard",
-                gradientColors = listOf(Level5x5Color, Color(0xFF6A1B9A)),
+                subtitle = "Ultimate Battle • Brain Teaser",
+                starCount = 3,
+                maxStars = 3,
+                gradientColors = listOf(Color(0xFFAB47BC), Color(0xFF6A1B9A)),
+                accentColor = Level5x5Color,
                 onClick = { onGridSelected(5) },
                 animatedProgress = animatedProgress.value,
                 delayFactor = 0.2f
@@ -148,8 +179,10 @@ private fun GridLevelCard(
     gridSize: Int,
     title: String,
     subtitle: String,
-    difficulty: String,
+    starCount: Int,
+    maxStars: Int,
     gradientColors: List<Color>,
+    accentColor: Color,
     onClick: () -> Unit,
     animatedProgress: Float,
     delayFactor: Float
@@ -169,7 +202,7 @@ private fun GridLevelCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(110.dp)
             .scale(cardScale)
             .graphicsLayer {
                 alpha = effectiveProgress
@@ -188,44 +221,66 @@ private fun GridLevelCard(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(gradientColors)
-                )
-                .padding(horizontal = 24.dp),
+                .background(brush = Brush.horizontalGradient(gradientColors))
+                .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Mini grid preview
             MiniGridPreview(
                 gridSize = gridSize,
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier.size(60.dp)
             )
 
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontSize = 20.sp,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 13.sp,
-                    color = Color.White.copy(alpha = 0.85f)
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.8f)
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                // Difficulty stars
+                Row {
+                    for (i in 1..maxStars) {
+                        Icon(
+                            imageVector = if (i <= starCount) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                            contentDescription = null,
+                            tint = if (i <= starCount) Color(0xFFFFD700) else Color.White.copy(alpha = 0.4f),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        if (i < maxStars) Spacer(modifier = Modifier.width(2.dp))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when (starCount) {
+                            1 -> "Easy"
+                            2 -> "Medium"
+                            else -> "Hard"
+                        },
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFFFD700)
+                    )
+                }
             }
 
-            // Difficulty badge
+            // Grid size badge
             Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White.copy(alpha = 0.25f)
+                shape = RoundedCornerShape(14.dp),
+                color = Color.White.copy(alpha = 0.2f)
             ) {
                 Text(
-                    text = difficulty,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    text = "${gridSize}×${gridSize}",
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     color = Color.White
                 )
             }
@@ -237,9 +292,9 @@ private fun GridLevelCard(
 private fun MiniGridPreview(gridSize: Int, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.2f))
-            .padding(4.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White.copy(alpha = 0.15f))
+            .padding(5.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

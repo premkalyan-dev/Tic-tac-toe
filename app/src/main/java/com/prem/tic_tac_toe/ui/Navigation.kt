@@ -27,6 +27,7 @@ fun AppNavigation(viewModel: GameViewModel) {
     // Settings dialog state (shared across screens)
     var showSettingsDialog by remember { mutableStateOf(false) }
     val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
+    val stats by viewModel.stats.collectAsState()
 
     NavHost(
         navController = navController,
@@ -35,13 +36,15 @@ fun AppNavigation(viewModel: GameViewModel) {
         // ─── Home Screen ───
         composable(Routes.HOME) {
             HomeScreen(
+                stats = stats,
                 onPlayFriend = {
                     navController.navigate(Routes.gridSelect("friend"))
                 },
                 onPlayComputer = {
                     navController.navigate(Routes.gridSelect("computer"))
                 },
-                onSettingsClick = { showSettingsDialog = true }
+                onSettingsClick = { showSettingsDialog = true },
+                onResetStats = { viewModel.resetStats() }
             )
         }
 
