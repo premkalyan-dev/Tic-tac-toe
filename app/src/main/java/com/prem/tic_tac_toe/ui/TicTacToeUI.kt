@@ -11,6 +11,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.Handshake
+import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -199,10 +202,18 @@ fun GameResultDialog(
 
     val resultIcon = when {
         gameState.winner != null -> {
-            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) "😞" else "🎉"
+            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer)
+                Icons.Filled.SentimentDissatisfied else Icons.Filled.Celebration
         }
-        gameState.isDraw -> "🤝"
-        else -> ""
+        gameState.isDraw -> Icons.Filled.Handshake
+        else -> Icons.Filled.Celebration
+    }
+
+    val resultIconColor = when {
+        gameState.winner != null -> {
+            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) LossRed else WinGreen
+        }
+        else -> DrawAmber
     }
 
     AlertDialog(
@@ -212,9 +223,11 @@ fun GameResultDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = resultIcon,
-                    fontSize = 48.sp
+                Icon(
+                    imageVector = resultIcon,
+                    contentDescription = null,
+                    tint = resultIconColor,
+                    modifier = Modifier.size(56.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -584,9 +597,15 @@ private fun StatItem(label: String, value: Int, color: Color) {
 @Composable
 fun StatusIndicator(state: GameState) {
     val statusText = when {
-        state.winner != null -> "🎉 ${state.winner} Wins!"
-        state.isDraw -> "🤝 It's a Draw!"
+        state.winner != null -> "${state.winner} Wins!"
+        state.isDraw -> "It's a Draw!"
         else -> "${state.currentTurn}'s Turn"
+    }
+
+    val statusIcon = when {
+        state.winner != null -> Icons.Filled.Celebration
+        state.isDraw -> Icons.Filled.Handshake
+        else -> null
     }
 
     val statusColor = when {
@@ -603,16 +622,29 @@ fun StatusIndicator(state: GameState) {
             containerColor = statusColor.copy(alpha = 0.1f)
         )
     ) {
-        Text(
-            text = statusText,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = statusColor,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (statusIcon != null) {
+                Icon(
+                    imageVector = statusIcon,
+                    contentDescription = null,
+                    tint = statusColor,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = statusColor
+            )
+        }
     }
 }
 
