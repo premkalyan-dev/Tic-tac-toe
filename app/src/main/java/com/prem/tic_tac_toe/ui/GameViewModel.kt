@@ -46,8 +46,6 @@ class GameViewModel(
     private val _stats = MutableStateFlow(statsManager.getStats())
     val stats: StateFlow<StatsManager.GameStats> = _stats.asStateFlow()
 
-    private val _isSoundEnabled = MutableStateFlow(settingsManager.isSoundEnabled())
-    val isSoundEnabled: StateFlow<Boolean> = _isSoundEnabled.asStateFlow()
 
     private val _isVibrationEnabled = MutableStateFlow(settingsManager.isVibrationEnabled())
     val isVibrationEnabled: StateFlow<Boolean> = _isVibrationEnabled.asStateFlow()
@@ -201,11 +199,6 @@ class GameViewModel(
         updateStats()
     }
 
-    fun toggleSound() {
-        val newState = !_isSoundEnabled.value
-        settingsManager.setSoundEnabled(newState)
-        _isSoundEnabled.value = newState
-    }
 
     fun toggleVibration() {
         val newState = !_isVibrationEnabled.value

@@ -306,11 +306,9 @@ fun GameResultDialog(
 // ─── Settings Dialog (extracted for sharing) ───
 @Composable
 fun SettingsDialog(
-    isSoundEnabled: Boolean,
     isVibrationEnabled: Boolean,
     currentMark: Player,
     currentTheme: String,
-    onToggleSound: () -> Unit,
     onToggleVibration: () -> Unit,
     onSetMark: (Player) -> Unit,
     onSetTheme: (String) -> Unit,
@@ -326,24 +324,6 @@ fun SettingsDialog(
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                // ─── Sound Toggle ───
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Sound Effects")
-                    Switch(
-                        checked = isSoundEnabled,
-                        onCheckedChange = { onToggleSound() },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 // ─── Vibration Toggle ───
                 Row(

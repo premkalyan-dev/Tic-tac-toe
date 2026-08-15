@@ -11,13 +11,6 @@ class SettingsManager(context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("game_settings", Context.MODE_PRIVATE)
 
-    fun isSoundEnabled(): Boolean {
-        return prefs.getBoolean(KEY_SOUND, true)
-    }
-
-    fun setSoundEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_SOUND, enabled).apply()
-    }
 
     fun isVibrationEnabled(): Boolean {
         return prefs.getBoolean(KEY_VIBRATION, true)
@@ -45,7 +38,6 @@ class SettingsManager(context: Context) {
     }
 
     companion object {
-        private const val KEY_SOUND = "sound_enabled"
         private const val KEY_VIBRATION = "vibration_enabled"
         private const val KEY_PLAYER_MARK = "player_mark"
         private const val KEY_THEME = "app_theme"
