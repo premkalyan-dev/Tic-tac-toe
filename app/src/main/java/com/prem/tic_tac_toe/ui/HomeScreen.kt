@@ -11,9 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.WbTwilight
+import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,12 +57,12 @@ fun HomeScreen(
     }
 
     // Get greeting based on time of day
-    val greeting = remember {
+    val (greeting, greetingIcon) = remember {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
         when {
-            hour < 12 -> "Good Morning! ☀️"
-            hour < 17 -> "Good Afternoon! 🌤️"
-            else -> "Good Evening! 🌙"
+            hour < 12 -> "Good Morning!" to Icons.Filled.WbSunny
+            hour < 17 -> "Good Afternoon!" to Icons.Filled.WbTwilight
+            else -> "Good Evening!" to Icons.Filled.NightsStay
         }
     }
 
@@ -78,16 +83,27 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // Welcome Greeting
-            Text(
-                text = greeting,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.graphicsLayer {
                     alpha = animatedProgress.value
                     translationY = (1f - animatedProgress.value) * 30f
                 }
-            )
+            ) {
+                Icon(
+                    imageVector = greetingIcon,
+                    contentDescription = null,
+                    tint = CoralOrange,
+                    modifier = Modifier.size(26.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = greeting,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
@@ -105,16 +121,27 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "Ready to play? Let's go! 🎮",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.graphicsLayer {
                     alpha = animatedProgress.value
                     translationY = (1f - animatedProgress.value) * 15f
                 }
-            )
+            ) {
+                Text(
+                    text = "Ready to play? Let's go!",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Filled.SportsEsports,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -199,13 +226,13 @@ private fun AchievementsSection(
     val winRate = if (decisiveGames > 0) (stats.wins * 100f / decisiveGames) else 0f
 
     // Determine achievement title
-    val (achievementTitle, achievementIcon) = when {
-        stats.wins >= 50 -> "🏆 Grand Master" to Color(0xFFFFD700)
-        stats.wins >= 25 -> "⭐ Champion" to Color(0xFFFF9800)
-        stats.wins >= 10 -> "🎯 Pro Player" to Color(0xFF4CAF50)
-        stats.wins >= 5 -> "🎮 Rising Star" to Color(0xFF2196F3)
-        totalGames > 0 -> "🌱 Beginner" to Color(0xFF9E9E9E)
-        else -> "🎮 New Player" to Color(0xFF9E9E9E)
+    val (achievementTitle, achievementIconColor) = when {
+        stats.wins >= 50 -> "Grand Master" to Color(0xFFFFD700)
+        stats.wins >= 25 -> "Champion" to Color(0xFFFF9800)
+        stats.wins >= 10 -> "Pro Player" to Color(0xFF4CAF50)
+        stats.wins >= 5 -> "Rising Star" to Color(0xFF2196F3)
+        totalGames > 0 -> "Beginner" to Color(0xFF9E9E9E)
+        else -> "New Player" to Color(0xFF9E9E9E)
     }
 
     Card(
@@ -227,7 +254,7 @@ private fun AchievementsSection(
                 Icon(
                     imageVector = Icons.Filled.EmojiEvents,
                     contentDescription = null,
-                    tint = achievementIcon,
+                    tint = achievementIconColor,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
