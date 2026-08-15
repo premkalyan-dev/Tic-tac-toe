@@ -1,7 +1,6 @@
 package com.prem.tic_tac_toe.ui
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,14 +26,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.data.StatsManager
 import com.prem.tic_tac_toe.ui.theme.*
+
 
 @Composable
 fun HomeScreen(
@@ -53,17 +51,15 @@ fun HomeScreen(
         )
     }
 
-    // Subtle floating animation for logo
-    val infiniteTransition = rememberInfiniteTransition(label = "float")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = -6f,
-        targetValue = 6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "floatOffset"
-    )
+    // Get greeting based on time of day
+    val greeting = remember {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        when {
+            hour < 12 -> "Good Morning! ☀️"
+            hour < 17 -> "Good Afternoon! 🌤️"
+            else -> "Good Evening! 🌙"
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -79,54 +75,55 @@ fun HomeScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Animated Logo
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "Three Win Logo",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .shadow(8.dp, RoundedCornerShape(20.dp))
-                    .graphicsLayer {
-                        translationY = floatOffset
-                        scaleX = animatedProgress.value
-                        scaleY = animatedProgress.value
-                    }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // App Title
+            // Welcome Greeting
             Text(
-                text = "Three Win",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = CoralOrange,
+                text = greeting,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.graphicsLayer {
                     alpha = animatedProgress.value
                     translationY = (1f - animatedProgress.value) * 30f
                 }
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // App Title
             Text(
-                text = "Tic Tac Toe",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = DeepIndigo,
+                text = "Three Win",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = CoralOrange,
                 modifier = Modifier.graphicsLayer {
                     alpha = animatedProgress.value
                     translationY = (1f - animatedProgress.value) * 20f
                 }
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Ready to play? Let's go! 🎮",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.graphicsLayer {
+                    alpha = animatedProgress.value
+                    translationY = (1f - animatedProgress.value) * 15f
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             // ─── Achievements / Stats Section ───
             AchievementsSection(
                 stats = stats,
                 animatedProgress = animatedProgress.value
             )
+
 
             Spacer(modifier = Modifier.height(20.dp))
 
