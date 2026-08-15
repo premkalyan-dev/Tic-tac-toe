@@ -195,7 +195,8 @@ private fun AchievementsSection(
     animatedProgress: Float
 ) {
     val totalGames = stats.wins + stats.losses + stats.draws
-    val winRate = if (totalGames > 0) (stats.wins * 100f / totalGames) else 0f
+    val decisiveGames = stats.wins + stats.losses
+    val winRate = if (decisiveGames > 0) (stats.wins * 100f / decisiveGames) else 0f
 
     // Determine achievement title
     val (achievementTitle, achievementIcon) = when {
