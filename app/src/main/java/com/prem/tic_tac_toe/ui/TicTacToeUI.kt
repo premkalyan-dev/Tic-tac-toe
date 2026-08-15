@@ -2,6 +2,7 @@ package com.prem.tic_tac_toe.ui
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -34,6 +38,8 @@ import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.logic.GameState
 import com.prem.tic_tac_toe.logic.Player
 import com.prem.tic_tac_toe.ui.theme.*
+import kotlin.math.sin
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,38 +109,44 @@ fun GameScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Stats Display
-            StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Stats Display
+                StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Status Indicator
-            StatusIndicator(gameState)
+                // Status Indicator
+                StatusIndicator(gameState)
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            val haptic = LocalHapticFeedback.current
-            val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
+                val haptic = LocalHapticFeedback.current
+                val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
 
-            // Dynamic NxN Grid
-            TicTacToeGrid(
-                gameState = gameState,
-                gridSize = gridSize,
-                onCellClick = {
-                    if (isVibrationEnabled) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                // Dynamic NxN Grid
+                TicTacToeGrid(
+                    gameState = gameState,
+                    gridSize = gridSize,
+                    onCellClick = {
+                        if (isVibrationEnabled) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        viewModel.onCellClick(it)
                     }
-                    viewModel.onCellClick(it)
-                }
-            )
+                )
+            }
+
+            // Confetti overlay when someone wins
+            if (gameState.winner != null) {
+                ConfettiOverlay()
+            }
         }
     }
 
@@ -733,4 +745,105 @@ fun AnimatedMark(player: Player?, gridSize: Int) {
         color = if (player == Player.X) XColor else OColor,
         modifier = Modifier.scale(scale.value)
     )
+}
+
+// ─── Confetti Celebration Animation ───
+
+private data class ConfettiParticle(
+    val startX: Float,       // 0f..1f fraction of width
+    val startY: Float,       // starts above screen (-0.1f..0f)
+    val speedY: Float,       // fall speed multiplier
+    val speedX: Float,       // horizontal drift
+    val rotation: Float,     // initial rotation
+    val rotationSpeed: Float,// degrees per progress unit
+    val size: Float,         // particle size in px
+    val color: Color,
+    val shape: Int,          // 0 = rectangle, 1 = circle
+    val wobbleOffset: Float  // phase offset for sine wave drift
+)
+
+private fun generateConfettiParticles(count: Int): List<ConfettiParticle> {
+    val colors = listOf(
+        Color(0xFFFF6B35), // Coral Orange
+        Color(0xFF1A237E), // Deep Indigo
+        Color(0xFF4CAF50), // Green
+        Color(0xFFFFC107), // Amber
+        Color(0xFFE91E63), // Pink
+        Color(0xFF2196F3), // Blue
+        Color(0xFF9C27B0), // Purple
+        Color(0xFFFF5722), // Deep Orange
+        Color(0xFF00BCD4), // Cyan
+        Color(0xFFFFEB3B)  // Yellow
+    )
+    return List(count) {
+        ConfettiParticle(
+            startX = Random.nextFloat(),
+            startY = Random.nextFloat() * -0.15f,
+            speedY = 0.6f + Random.nextFloat() * 0.8f,
+            speedX = (Random.nextFloat() - 0.5f) * 0.3f,
+            rotation = Random.nextFloat() * 360f,
+            rotationSpeed = (Random.nextFloat() - 0.5f) * 720f,
+            size = 8f + Random.nextFloat() * 14f,
+            color = colors[Random.nextInt(colors.size)],
+            shape = Random.nextInt(2),
+            wobbleOffset = Random.nextFloat() * 6.28f
+        )
+    }
+}
+
+@Composable
+private fun ConfettiOverlay() {
+    val particles = remember { generateConfettiParticles(80) }
+
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 3500, easing = LinearEasing)
+        )
+    }
+
+    val currentProgress = progress.value
+
+    if (currentProgress < 1f) {
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val w = size.width
+            val h = size.height
+
+            // Fade out in the last 30% of the animation
+            val globalAlpha = if (currentProgress > 0.7f) {
+                1f - ((currentProgress - 0.7f) / 0.3f)
+            } else 1f
+
+            for (p in particles) {
+                val x = (p.startX + p.speedX * currentProgress +
+                        sin((currentProgress * 4f + p.wobbleOffset).toDouble()).toFloat() * 0.03f) * w
+                val y = (p.startY + p.speedY * currentProgress * 1.2f) * h
+                val rotation = p.rotation + p.rotationSpeed * currentProgress
+                val alpha = (globalAlpha * (1f - currentProgress * 0.3f)).coerceIn(0f, 1f)
+
+                if (y < h && y > -p.size * 2) {
+                    rotate(degrees = rotation, pivot = Offset(x, y)) {
+                        if (p.shape == 0) {
+                            // Rectangle confetti
+                            drawRect(
+                                color = p.color.copy(alpha = alpha),
+                                topLeft = Offset(x - p.size / 2, y - p.size / 4),
+                                size = Size(p.size, p.size * 0.6f)
+                            )
+                        } else {
+                            // Circle confetti
+                            drawCircle(
+                                color = p.color.copy(alpha = alpha),
+                                radius = p.size / 2.5f,
+                                center = Offset(x, y)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
