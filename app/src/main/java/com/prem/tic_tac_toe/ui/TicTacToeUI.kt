@@ -143,10 +143,6 @@ fun GameScreen(
                 )
             }
 
-            // Confetti overlay when someone wins
-            if (gameState.winner != null) {
-                ConfettiOverlay()
-            }
         }
     }
 
@@ -231,28 +227,40 @@ fun GameResultDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Column(
+            Box(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = resultIcon,
-                    contentDescription = null,
-                    tint = resultIconColor,
-                    modifier = Modifier.size(56.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = resultTitle,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = when {
-                        gameState.winner != null -> {
-                            if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) LossRed else WinGreen
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = resultIcon,
+                        contentDescription = null,
+                        tint = resultIconColor,
+                        modifier = Modifier.size(56.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = resultTitle,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = when {
+                            gameState.winner != null -> {
+                                if (gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer) LossRed else WinGreen
+                            }
+                            else -> DrawAmber
                         }
-                        else -> DrawAmber
-                    }
-                )
+                    )
+                }
+
+                // Confetti inside the dialog for wins
+                val showConfetti = gameState.winner != null &&
+                    !(gameMode == GameMode.VS_COMPUTER && gameState.winner == aiPlayer)
+                if (showConfetti) {
+                    ConfettiOverlay()
+                }
             }
         },
         text = {
