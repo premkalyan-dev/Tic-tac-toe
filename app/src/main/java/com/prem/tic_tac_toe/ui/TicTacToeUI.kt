@@ -106,10 +106,8 @@ fun GameScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Stats Display
             StatsHeader(stats = stats, onResetClick = { showResetDialog = true })
 

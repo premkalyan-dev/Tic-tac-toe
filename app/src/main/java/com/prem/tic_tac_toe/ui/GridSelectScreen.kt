@@ -74,107 +74,113 @@ fun GridSelectScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Header
-            Text(
-                text = "Choose Board Size",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                    translationY = (1f - animatedProgress.value) * 30f
-                }
-            )
+                // Header
+                Text(
+                    text = "Choose Board Size",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.graphicsLayer {
+                        alpha = animatedProgress.value
+                        translationY = (1f - animatedProgress.value) * 30f
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                text = "Pick your challenge level",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                    translationY = (1f - animatedProgress.value) * 20f
-                }
-            )
+                Text(
+                    text = "Pick your challenge level",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.graphicsLayer {
+                        alpha = animatedProgress.value
+                        translationY = (1f - animatedProgress.value) * 20f
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-            // 3×3 Classic
-            BoardCard(
-                gridSize = 3,
-                badgeLabel = "Classic",
-                badgeColor = Level3x3Color,
-                starCount = 1,
-                maxStars = 3,
-                sizeLabel = "3 × 3",
-                description = "Quick & classic fun",
-                boardColors = BoardCardColors(
-                    bgGradient = listOf(Color(0xFF1A237E), Color(0xFF0D47A1)),
-                    xColor = XColor,
-                    oColor = OColor,
-                    gridLineColor = Color(0xFF00E5FF)
-                ),
-                onClick = { onGridSelected(3) },
-                animatedProgress = animatedProgress.value,
-                delayFactor = 0f
-            )
+                // 3×3 Classic
+                BoardCard(
+                    gridSize = 3,
+                    badgeLabel = "Classic",
+                    badgeColor = Level3x3Color,
+                    starCount = 1,
+                    maxStars = 3,
+                    sizeLabel = "3 × 3",
+                    description = "Quick & classic fun",
+                    boardColors = BoardCardColors(
+                        bgGradient = listOf(Color(0xFF1A237E), Color(0xFF0D47A1)),
+                        xColor = XColor,
+                        oColor = OColor,
+                        gridLineColor = Color(0xFF00E5FF)
+                    ),
+                    onClick = { onGridSelected(3) },
+                    animatedProgress = animatedProgress.value,
+                    delayFactor = 0f
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 4×4 Advanced
-            BoardCard(
-                gridSize = 4,
-                badgeLabel = "Advanced",
-                badgeColor = Level4x4Color,
-                starCount = 2,
-                maxStars = 3,
-                sizeLabel = "4 × 4",
-                description = "More strategy, think ahead",
-                boardColors = BoardCardColors(
-                    bgGradient = listOf(Color(0xFF1A237E), Color(0xFF283593)),
-                    xColor = Color(0xFFFF5252),
-                    oColor = Color(0xFF69F0AE),
-                    gridLineColor = Color(0xFFFFD740)
-                ),
-                onClick = { onGridSelected(4) },
-                animatedProgress = animatedProgress.value,
-                delayFactor = 0.1f
-            )
+                // 4×4 Advanced
+                BoardCard(
+                    gridSize = 4,
+                    badgeLabel = "Advanced",
+                    badgeColor = Level4x4Color,
+                    starCount = 2,
+                    maxStars = 3,
+                    sizeLabel = "4 × 4",
+                    description = "More strategy, think ahead",
+                    boardColors = BoardCardColors(
+                        bgGradient = listOf(Color(0xFF1A237E), Color(0xFF283593)),
+                        xColor = Color(0xFFFF5252),
+                        oColor = Color(0xFF69F0AE),
+                        gridLineColor = Color(0xFFFFD740)
+                    ),
+                    onClick = { onGridSelected(4) },
+                    animatedProgress = animatedProgress.value,
+                    delayFactor = 0.1f
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 5×5 Expert
-            BoardCard(
-                gridSize = 5,
-                badgeLabel = "Expert",
-                badgeColor = Color(0xFFF44336),
-                starCount = 3,
-                maxStars = 3,
-                sizeLabel = "5 × 5",
-                description = "For true masters only",
-                boardColors = BoardCardColors(
-                    bgGradient = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2)),
-                    xColor = Color(0xFFFF80AB),
-                    oColor = Color(0xFFFFD740),
-                    gridLineColor = Color(0xFFE040FB)
-                ),
-                onClick = { onGridSelected(5) },
-                animatedProgress = animatedProgress.value,
-                delayFactor = 0.2f
-            )
+                // 5×5 Expert
+                BoardCard(
+                    gridSize = 5,
+                    badgeLabel = "Expert",
+                    badgeColor = Color(0xFFF44336),
+                    starCount = 3,
+                    maxStars = 3,
+                    sizeLabel = "5 × 5",
+                    description = "For true masters only",
+                    boardColors = BoardCardColors(
+                        bgGradient = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2)),
+                        xColor = Color(0xFFFF80AB),
+                        oColor = Color(0xFFFFD740),
+                        gridLineColor = Color(0xFFE040FB)
+                    ),
+                    onClick = { onGridSelected(5) },
+                    animatedProgress = animatedProgress.value,
+                    delayFactor = 0.2f
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
