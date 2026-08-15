@@ -139,7 +139,7 @@ fun AppNavigation(viewModel: GameViewModel) {
             },
             text = {
                 Text(
-                    text = "Are you sure you want to exit Three Win?",
+                    text = "Do you want to exit the game?",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
