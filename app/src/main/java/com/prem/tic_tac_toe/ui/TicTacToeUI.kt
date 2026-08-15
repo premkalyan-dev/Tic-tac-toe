@@ -800,8 +800,8 @@ private fun generateConfettiParticles(count: Int): List<ConfettiParticle> {
 }
 
 @Composable
-private fun ConfettiOverlay() {
-    val particles = remember { generateConfettiParticles(80) }
+private fun BoxScope.ConfettiOverlay() {
+    val particles = remember { generateConfettiParticles(50) }
 
     val progress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
@@ -815,7 +815,7 @@ private fun ConfettiOverlay() {
 
     if (currentProgress < 1f) {
         Canvas(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.matchParentSize()
         ) {
             val w = size.width
             val h = size.height
