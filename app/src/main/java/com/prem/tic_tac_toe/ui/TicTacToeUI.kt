@@ -298,13 +298,6 @@ fun GameResultDialog(
                 ) {
                     Text("Undo Last Move", color = MaterialTheme.colorScheme.primary)
                 }
-
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Close", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
             }
         }
     )

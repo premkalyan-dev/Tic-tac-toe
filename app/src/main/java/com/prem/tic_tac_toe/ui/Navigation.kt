@@ -1,12 +1,25 @@
 package com.prem.tic_tac_toe.ui
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prem.tic_tac_toe.logic.Player
+import com.prem.tic_tac_toe.ui.theme.CoralOrange
 
 /**
  * Navigation routes for the app.
@@ -23,13 +36,20 @@ object Routes {
 @Composable
 fun AppNavigation(viewModel: GameViewModel) {
     val navController = rememberNavController()
+    val activity = LocalContext.current as? Activity
 
     // Settings dialog state (shared across screens)
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
     val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
     val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
     val appTheme by viewModel.appTheme.collectAsState()
     val stats by viewModel.stats.collectAsState()
+
+    // Intercept back button on all screens
+    BackHandler {
+        showExitDialog = true
+    }
 
     NavHost(
         navController = navController,
@@ -106,6 +126,47 @@ fun AppNavigation(viewModel: GameViewModel) {
             onSetTheme = { viewModel.setAppTheme(it) },
             onResetStats = { viewModel.resetStats() },
             onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    // ─── Exit Confirmation Dialog ───
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = {
+                Text(
+                    text = "Exit Game?",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to exit Three Win?",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showExitDialog = false
+                        activity?.finish()
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                ) {
+                    Text("Exit", color = Color.White)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showExitDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Stay", color = CoralOrange, fontWeight = FontWeight.SemiBold)
+                }
+            }
         )
     }
 }
