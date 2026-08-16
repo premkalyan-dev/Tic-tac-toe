@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -7,8 +9,26 @@ android {
     namespace = "com.prem.tic_tac_toe"
     compileSdk = 37
 
+    val keystoreProperties = Properties()
+    val keystorePropertiesFile = rootProject.file("local.properties")
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(keystorePropertiesFile.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keystoreProperties.getProperty("signing.storeFile")
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+            }
+            storePassword = keystoreProperties.getProperty("signing.storePassword")
+            keyAlias = keystoreProperties.getProperty("signing.keyAlias")
+            keyPassword = keystoreProperties.getProperty("signing.keyPassword")
+        }
+    }
+
     defaultConfig {
-        applicationId = "com.prem.tic_tac_toe"
+        applicationId = "com.threewin.tictactoe"
         minSdk = 24
         targetSdk = 36
         versionCode = 4
@@ -19,6 +39,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }
