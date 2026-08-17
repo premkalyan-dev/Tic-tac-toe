@@ -313,10 +313,10 @@ fun SettingsDialog(
     onSetMark: (Player) -> Unit,
     onSetTheme: (String) -> Unit,
     onResetStats: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
     var showResetConfirm by remember { mutableStateOf(false) }
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -497,7 +497,7 @@ fun SettingsDialog(
 
                 // ─── Privacy Policy ───
                 OutlinedButton(
-                    onClick = { uriHandler.openUri("https://your-website.com/privacy-policy") },
+                    onClick = { onPrivacyPolicyClick() },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {

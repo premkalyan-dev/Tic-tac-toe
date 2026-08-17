@@ -28,6 +28,7 @@ object Routes {
     const val HOME = "home"
     const val GRID_SELECT = "grid_select/{mode}"
     const val GAME = "game/{mode}/{gridSize}"
+    const val PRIVACY_POLICY = "privacy_policy"
 
     fun gridSelect(mode: String) = "grid_select/$mode"
     fun game(mode: String, gridSize: Int) = "game/$mode/$gridSize"
@@ -110,6 +111,13 @@ fun AppNavigation(viewModel: GameViewModel) {
                 onSettingsClick = { showSettingsDialog = true }
             )
         }
+
+        // ─── Privacy Policy Screen ───
+        composable(Routes.PRIVACY_POLICY) {
+            PrivacyPolicyScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 
     // ─── Settings Dialog (shared) ───
@@ -122,6 +130,10 @@ fun AppNavigation(viewModel: GameViewModel) {
             onSetMark = { viewModel.setHumanPlayerMark(it) },
             onSetTheme = { viewModel.setAppTheme(it) },
             onResetStats = { viewModel.resetStats() },
+            onPrivacyPolicyClick = { 
+                showSettingsDialog = false
+                navController.navigate(Routes.PRIVACY_POLICY)
+            },
             onDismiss = { showSettingsDialog = false }
         )
     }
