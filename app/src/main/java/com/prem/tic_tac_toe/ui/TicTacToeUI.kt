@@ -237,7 +237,7 @@ fun GameResultDialog(
                 ) {
                     Icon(
                         imageVector = resultIcon,
-                        contentDescription = null,
+                        contentDescription = "Result Icon",
                         tint = resultIconColor,
                         modifier = Modifier.size(56.dp)
                     )
@@ -316,6 +316,7 @@ fun SettingsDialog(
     onDismiss: () -> Unit
 ) {
     var showResetConfirm by remember { mutableStateOf(false) }
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -493,6 +494,17 @@ fun SettingsDialog(
                     modifier = Modifier.padding(vertical = 14.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant
                 )
+
+                // ─── Privacy Policy ───
+                OutlinedButton(
+                    onClick = { uriHandler.openUri("https://your-website.com/privacy-policy") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text("Privacy Policy", fontWeight = FontWeight.SemiBold)
+                }
+                
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // ─── Reset Stats ───
                 OutlinedButton(

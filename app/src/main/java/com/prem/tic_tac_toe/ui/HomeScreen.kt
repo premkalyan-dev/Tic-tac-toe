@@ -44,8 +44,7 @@ fun HomeScreen(
     stats: StatsManager.GameStats,
     onPlayFriend: () -> Unit,
     onPlayComputer: () -> Unit,
-    onSettingsClick: () -> Unit,
-    bannerAd: @Composable () -> Unit = {}
+    onSettingsClick: () -> Unit
 ) {
     // Entrance animation
     val animatedProgress = remember { Animatable(0f) }
@@ -92,7 +91,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = greetingIcon,
-                    contentDescription = null,
+                    contentDescription = "Greeting Icon",
                     tint = CoralOrange,
                     modifier = Modifier.size(26.dp)
                 )
@@ -137,7 +136,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Filled.SportsEsports,
-                    contentDescription = null,
+                    contentDescription = "Game Controller Icon",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
@@ -203,15 +202,6 @@ fun HomeScreen(
         }
       }
 
-        // Banner Ad Footer
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-        ) {
-            bannerAd()
-        }
     }
 }
 
@@ -253,7 +243,7 @@ private fun AchievementsSection(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Filled.EmojiEvents,
-                    contentDescription = null,
+                    contentDescription = "Achievement Trophy",
                     tint = achievementIconColor,
                     modifier = Modifier.size(24.dp)
                 )
