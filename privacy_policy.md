@@ -20,4 +20,4 @@ We may update this Privacy Policy from time to time. If any changes are made, we
 
 ## 6. Contact Us
 If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at:
-**[Your Email Address]**
+**premkalyan2727@gmail.com**

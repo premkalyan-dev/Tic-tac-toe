@@ -80,7 +80,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             
             PolicySection(
                 title = "6. Contact Us",
-                body = "If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at:\n[Your Email Address]"
+                body = "If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at:\npremkalyan2727@gmail.com"
             )
         }
     }
