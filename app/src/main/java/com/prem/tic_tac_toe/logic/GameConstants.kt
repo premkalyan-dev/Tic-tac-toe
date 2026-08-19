@@ -2,14 +2,28 @@ package com.prem.tic_tac_toe.logic
 
 object GameConstants {
 
+    // Precomputed cache for all supported grid sizes
+    private val winningPatternsCache: Map<Int, List<List<Int>>> = mapOf(
+        3 to computeWinningPatterns(3),
+        4 to computeWinningPatterns(4),
+        5 to computeWinningPatterns(5)
+    )
+
     /**
-     * Generates all winning patterns for an NxN grid where N-in-a-row wins.
+     * Returns cached winning patterns for the given grid size.
+     * Falls back to dynamic computation for unsupported sizes.
+     */
+    fun getWinningPatterns(gridSize: Int): List<List<Int>> =
+        winningPatternsCache[gridSize] ?: computeWinningPatterns(gridSize)
+
+    /**
+     * Computes all winning patterns for an NxN grid where N-in-a-row wins.
      * Includes rows, columns, and both diagonals.
      *
      * @param gridSize The size of the grid (3, 4, or 5)
      * @return List of winning patterns, each being a list of cell indices
      */
-    fun generateWinningPatterns(gridSize: Int): List<List<Int>> {
+    private fun computeWinningPatterns(gridSize: Int): List<List<Int>> {
         val patterns = mutableListOf<List<Int>>()
 
         // Rows

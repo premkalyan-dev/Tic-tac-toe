@@ -796,44 +796,45 @@ private fun BoxScope.ConfettiOverlay() {
         )
     }
 
-    val currentProgress = progress.value
+    // Canvas always present; reading progress.value inside drawScope
+    // means only the Draw phase re-executes each frame, not Composition/Layout.
+    Canvas(
+        modifier = Modifier.matchParentSize()
+    ) {
+        val currentProgress = progress.value
+        if (currentProgress >= 1f) return@Canvas
 
-    if (currentProgress < 1f) {
-        Canvas(
-            modifier = Modifier.matchParentSize()
-        ) {
-            val w = size.width
-            val h = size.height
+        val w = size.width
+        val h = size.height
 
-            // Fade out in the last 30% of the animation
-            val globalAlpha = if (currentProgress > 0.7f) {
-                1f - ((currentProgress - 0.7f) / 0.3f)
-            } else 1f
+        // Fade out in the last 30% of the animation
+        val globalAlpha = if (currentProgress > 0.7f) {
+            1f - ((currentProgress - 0.7f) / 0.3f)
+        } else 1f
 
-            for (p in particles) {
-                val x = (p.startX + p.speedX * currentProgress +
-                        sin((currentProgress * 4f + p.wobbleOffset).toDouble()).toFloat() * 0.03f) * w
-                val y = (p.startY + p.speedY * currentProgress * 1.2f) * h
-                val rotation = p.rotation + p.rotationSpeed * currentProgress
-                val alpha = (globalAlpha * (1f - currentProgress * 0.3f)).coerceIn(0f, 1f)
+        for (p in particles) {
+            val x = (p.startX + p.speedX * currentProgress +
+                    sin((currentProgress * 4f + p.wobbleOffset).toDouble()).toFloat() * 0.03f) * w
+            val y = (p.startY + p.speedY * currentProgress * 1.2f) * h
+            val rotation = p.rotation + p.rotationSpeed * currentProgress
+            val alpha = (globalAlpha * (1f - currentProgress * 0.3f)).coerceIn(0f, 1f)
 
-                if (y < h && y > -p.size * 2) {
-                    rotate(degrees = rotation, pivot = Offset(x, y)) {
-                        if (p.shape == 0) {
-                            // Rectangle confetti
-                            drawRect(
-                                color = p.color.copy(alpha = alpha),
-                                topLeft = Offset(x - p.size / 2, y - p.size / 4),
-                                size = Size(p.size, p.size * 0.6f)
-                            )
-                        } else {
-                            // Circle confetti
-                            drawCircle(
-                                color = p.color.copy(alpha = alpha),
-                                radius = p.size / 2.5f,
-                                center = Offset(x, y)
-                            )
-                        }
+            if (y < h && y > -p.size * 2) {
+                rotate(degrees = rotation, pivot = Offset(x, y)) {
+                    if (p.shape == 0) {
+                        // Rectangle confetti
+                        drawRect(
+                            color = p.color.copy(alpha = alpha),
+                            topLeft = Offset(x - p.size / 2, y - p.size / 4),
+                            size = Size(p.size, p.size * 0.6f)
+                        )
+                    } else {
+                        // Circle confetti
+                        drawCircle(
+                            color = p.color.copy(alpha = alpha),
+                            radius = p.size / 2.5f,
+                            center = Offset(x, y)
+                        )
                     }
                 }
             }

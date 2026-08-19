@@ -17,7 +17,7 @@ object AIPlayer {
      */
     fun getAIMove(board: List<Player?>, aiPlayer: Player, gridSize: Int): Int {
         val opponent = if (aiPlayer == Player.X) Player.O else Player.X
-        val patterns = GameConstants.generateWinningPatterns(gridSize)
+        val patterns = GameConstants.getWinningPatterns(gridSize)
 
         // 1. Try to win
         findWinningMove(board, aiPlayer, patterns)?.let { return it }

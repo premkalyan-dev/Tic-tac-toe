@@ -11,11 +11,13 @@ import com.prem.tic_tac_toe.logic.AIPlayer
 import com.prem.tic_tac_toe.logic.GameEngine
 import com.prem.tic_tac_toe.logic.GameState
 import com.prem.tic_tac_toe.logic.Player
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Modes of the game.
@@ -113,7 +115,9 @@ class GameViewModel(
             isProcessingMove = true
             delay(500) // Delay to make AI feel more natural
             val currentState = _gameState.value
-            val aiMove = AIPlayer.getAIMove(currentState.board, _aiPlayer.value, currentState.gridSize)
+            val aiMove = withContext(Dispatchers.Default) {
+                AIPlayer.getAIMove(currentState.board, _aiPlayer.value, currentState.gridSize)
+            }
             if (aiMove != -1) {
                 history.add(currentState)
                 val newState = GameEngine.makeMove(currentState, aiMove)

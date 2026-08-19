@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prem.tic_tac_toe.logic.Player
@@ -46,8 +47,12 @@ fun AppNavigation(viewModel: GameViewModel) {
     val appTheme by viewModel.appTheme.collectAsState()
     val stats by viewModel.stats.collectAsState()
 
-    // Intercept back button on all screens
-    BackHandler {
+    // Track the current route to make back handling contextual
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
+    // Only show exit dialog when on the Home screen; other screens navigate back normally
+    BackHandler(enabled = currentRoute == Routes.HOME) {
         showExitDialog = true
     }
 

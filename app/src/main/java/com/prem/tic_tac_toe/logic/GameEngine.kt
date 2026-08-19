@@ -37,32 +37,35 @@ data class GameState(
 object GameEngine {
 
     /**
-     * Checks all win patterns for the given grid size and returns the winner if any.
+     * Result of checking the board for a winner.
      */
-    fun checkWinner(board: List<Player?>, gridSize: Int): Player? {
-        val patterns = GameConstants.generateWinningPatterns(gridSize)
+    data class WinResult(val winner: Player?, val winningLine: List<Int>?)
+
+    /**
+     * Single-pass check: returns both the winner and the winning line indices.
+     */
+    fun checkResult(board: List<Player?>, gridSize: Int): WinResult {
+        val patterns = GameConstants.getWinningPatterns(gridSize)
         for (pattern in patterns) {
             val first = board[pattern[0]]
             if (first != null && pattern.all { board[it] == first }) {
-                return first
+                return WinResult(first, pattern)
             }
         }
-        return null
+        return WinResult(null, null)
     }
+
+    /**
+     * Checks all win patterns for the given grid size and returns the winner if any.
+     */
+    fun checkWinner(board: List<Player?>, gridSize: Int): Player? =
+        checkResult(board, gridSize).winner
 
     /**
      * Returns the indices of the winning line if there is a winner.
      */
-    fun checkWinningLine(board: List<Player?>, gridSize: Int): List<Int>? {
-        val patterns = GameConstants.generateWinningPatterns(gridSize)
-        for (pattern in patterns) {
-            val first = board[pattern[0]]
-            if (first != null && pattern.all { board[it] == first }) {
-                return pattern
-            }
-        }
-        return null
-    }
+    fun checkWinningLine(board: List<Player?>, gridSize: Int): List<Int>? =
+        checkResult(board, gridSize).winningLine
 
     /**
      * Returns true if all cells on the board are filled.
@@ -86,9 +89,8 @@ object GameEngine {
         val newBoard = state.board.toMutableList()
         newBoard[position] = state.currentTurn
 
-        // Check for winner or draw
-        val winner = checkWinner(newBoard, state.gridSize)
-        val winningLine = if (winner != null) checkWinningLine(newBoard, state.gridSize) else null
+        // Single-pass check for winner and winning line
+        val (winner, winningLine) = checkResult(newBoard, state.gridSize)
         val isDraw = winner == null && isBoardFull(newBoard)
 
         // Switch turn
