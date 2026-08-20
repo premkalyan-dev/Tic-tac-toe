@@ -1,6 +1,7 @@
 # Privacy Policy for Three Win (Tic-Tac-Toe)
 
-**Effective Date:** August 17, 2026
+**Effective Date:** August 17, 2026  
+**Official Online Policy:** [https://splendorous-daffodil-fb1cdf.netlify.app/](https://splendorous-daffodil-fb1cdf.netlify.app/)
 
 ## 1. Information Collection and Use
 **Three Win** is a fully offline game. We respect your privacy and **do not collect, store, or share any personal user data**. 
