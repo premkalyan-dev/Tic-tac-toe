@@ -73,7 +73,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("View Official Online Policy")
+                Text("View Official Policy Page")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
