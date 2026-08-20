@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PrivacyPolicyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val onlinePolicyUrl = "https://splendorous-daffodil-fb1cdf.netlify.app/"
+    val onlinePolicyUrl = "https://delicate-frangollo-4a87b8.netlify.app/"
 
     Scaffold(
         topBar = {
@@ -54,7 +54,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Effective Date: August 17, 2026",
+                text = "Version 5.0  •  Effective Date: August 17, 2026",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -85,26 +85,41 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             
             PolicySection(
                 title = "2. Local Data Storage",
-                body = "Game statistics (such as the number of wins, losses, and draws) are saved locally on your device using Android's SharedPreferences. This data is stored solely for the purpose of tracking your progress and is never transmitted off your device. You can clear this data at any time by using the \"Reset Stats\" button in the app's settings."
+                body = "Game statistics (such as the number of wins, losses, and draws) and user preferences (vibration toggle, player mark, color theme) are saved locally on your device using Android's SharedPreferences. This data is stored solely for the purpose of tracking your progress and preserving your settings, and is never transmitted off your device. You can clear this data at any time by using the \"Reset Stats\" button in the app's settings."
             )
             
             PolicySection(
                 title = "3. Device Permissions",
-                body = "The app requests the VIBRATE permission. This is used strictly to provide haptic feedback (vibrations) during gameplay when you tap on the game board."
+                body = "The app requests the VIBRATE permission. This is used strictly to provide haptic feedback (vibrations) during gameplay when you tap on the game board. No personal data, device identifiers, or telemetry are collected or transmitted via this permission."
             )
             
             PolicySection(
                 title = "4. Third-Party Services and Advertising",
                 body = "Three Win does not contain any advertisements and does not use third-party analytics or tracking SDKs."
             )
+
+            PolicySection(
+                title = "5. Children's Privacy",
+                body = "Three Win is a family-friendly game suitable for all ages. It complies with COPPA and Google Play Families policy by collecting no personal data from any user."
+            )
+
+            PolicySection(
+                title = "6. Data Security",
+                body = "Because all data is processed and stored strictly on your local device without network transmission, your game data is protected by Android's application sandboxing architecture."
+            )
+
+            PolicySection(
+                title = "7. Your Rights",
+                body = "Because Three Win collects and stores zero personal data on any server, data deletion or access requests do not apply to our infrastructure. You have 100% direct control over your on-device data by using \"Reset Stats\" in-game or clearing app storage in Android settings."
+            )
             
             PolicySection(
-                title = "5. Changes to This Privacy Policy",
+                title = "8. Changes to This Privacy Policy",
                 body = "We may update this Privacy Policy from time to time. If any changes are made, we will update the \"Effective Date\" at the top of this policy."
             )
             
             PolicySection(
-                title = "6. Contact Us",
+                title = "9. Contact Us",
                 body = "If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at:\npremkalyan2727@gmail.com"
             )
         }
