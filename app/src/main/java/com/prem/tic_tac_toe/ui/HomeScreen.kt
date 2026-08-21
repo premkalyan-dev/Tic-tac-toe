@@ -102,8 +102,18 @@ fun HomeScreen(
                 animatedProgress = animatedProgress.value
             )
 
-            // Minimal bottom padding to prevent content touching edge
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ─── 5. Reserved Banner Ad Space (Future AdMob / Banner Ad) ───
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .background(Color.Transparent)
+            )
+
+            // Minimal bottom spacing below the ad placeholder
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Settings icon (top-right)
