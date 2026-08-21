@@ -50,63 +50,59 @@ fun HomeScreen(
         )
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
-        // Main content group centered vertically & horizontally
-        Box(
+        val screenHeight = maxHeight
+
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = screenHeight)
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // ─── 1. Neon Glow "Tic Tac Toe" Title ───
-                NeonTitle(
-                    animatedProgress = animatedProgress.value
-                )
+            // ─── 1. Neon Glow "Tic Tac Toe" Title ───
+            NeonTitle(
+                animatedProgress = animatedProgress.value
+            )
 
-                Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-                // ─── 2. "Play with Friend" Button ───
-                ModeCard(
-                    title = "Play with Friend",
-                    subtitle = "Challenge a local player",
-                    icon = Icons.Filled.People,
-                    gradientColors = listOf(Color(0xFF43A047), Color(0xFF1B5E20)),
-                    onClick = onPlayFriend,
-                    animatedProgress = animatedProgress.value
-                )
+            // ─── 2. "Play with Friend" Button ───
+            ModeCard(
+                title = "Play with Friend",
+                subtitle = "Challenge a local player",
+                icon = Icons.Filled.People,
+                gradientColors = listOf(Color(0xFF43A047), Color(0xFF1B5E20)),
+                onClick = onPlayFriend,
+                animatedProgress = animatedProgress.value
+            )
 
-                Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-                // ─── 3. "Play with Computer" Button ───
-                ModeCard(
-                    title = "Play with Computer",
-                    subtitle = "Test your skills against AI",
-                    icon = Icons.Filled.SmartToy,
-                    gradientColors = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1)),
-                    onClick = onPlayComputer,
-                    animatedProgress = animatedProgress.value
-                )
+            // ─── 3. "Play with Computer" Button ───
+            ModeCard(
+                title = "Play with Computer",
+                subtitle = "Test your skills against AI",
+                icon = Icons.Filled.SmartToy,
+                gradientColors = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1)),
+                onClick = onPlayComputer,
+                animatedProgress = animatedProgress.value
+            )
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // ─── 4. Stats Card (Achievements & Win Rate) ───
-                AchievementsSection(
-                    stats = stats,
-                    animatedProgress = animatedProgress.value
-                )
-            }
+            // ─── 4. Stats Card (Achievements & Win Rate) ───
+            AchievementsSection(
+                stats = stats,
+                animatedProgress = animatedProgress.value
+            )
         }
 
         // Settings icon (top-right)
