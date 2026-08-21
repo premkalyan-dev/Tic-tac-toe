@@ -679,32 +679,56 @@ fun TicTacToeGrid(
                 for (col in 0 until gridSize) {
                     val index = row * gridSize + col
                     val isWinningCell = gameState.winningLine?.contains(index) == true
+                    val cellPlayer = gameState.board.getOrNull(index)
 
-                    val cellColor = when {
-                        isWinningCell -> WinGreenLight
-                        else -> LightGray.copy(alpha = 0.5f)
+                    val cellOnClick = remember(index, onCellClick) {
+                        { onCellClick(index) }
                     }
 
-                    Box(
+                    TicTacToeCell(
+                        player = cellPlayer,
+                        isWinningCell = isWinningCell,
+                        gridSize = gridSize,
+                        onClick = cellOnClick,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(3.dp)
-                            .clip(RoundedCornerShape(if (gridSize <= 3) 12.dp else 8.dp))
-                            .background(cellColor)
-                            .clickable { onCellClick(index) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedMark(
-                            player = gameState.board[index],
-                            gridSize = gridSize
-                        )
-                    }
+                    )
                 }
             }
         }
     }
 }
+
+// ─── Individual Grid Cell ───
+@Composable
+private fun TicTacToeCell(
+    player: Player?,
+    isWinningCell: Boolean,
+    gridSize: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cellColor = when {
+        isWinningCell -> WinGreenLight
+        else -> LightGray.copy(alpha = 0.5f)
+    }
+
+    Box(
+        modifier = modifier
+            .padding(3.dp)
+            .clip(RoundedCornerShape(if (gridSize <= 3) 12.dp else 8.dp))
+            .background(cellColor)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedMark(
+            player = player,
+            gridSize = gridSize
+        )
+    }
+}
+
 
 // ─── Animated Mark ───
 @Composable
