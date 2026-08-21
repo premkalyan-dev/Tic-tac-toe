@@ -13,11 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material.icons.filled.WbTwilight
-import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,13 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prem.tic_tac_toe.data.StatsManager
@@ -54,23 +50,12 @@ fun HomeScreen(
         )
     }
 
-    // Get greeting based on time of day
-    val (greeting, greetingIcon) = remember {
-        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-        when {
-            hour < 12 -> "Good Morning!" to Icons.Filled.WbSunny
-            hour < 17 -> "Good Afternoon!" to Icons.Filled.WbTwilight
-            else -> "Good Evening!" to Icons.Filled.NightsStay
-        }
-    }
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
-      Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,91 +63,16 @@ fun HomeScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Welcome Greeting
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                    translationY = (1f - animatedProgress.value) * 30f
-                }
-            ) {
-                Icon(
-                    imageVector = greetingIcon,
-                    contentDescription = "Greeting Icon",
-                    tint = CoralOrange,
-                    modifier = Modifier.size(26.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = greeting,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // App Title
-            Text(
-                text = "Three Win",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = CoralOrange,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                    translationY = (1f - animatedProgress.value) * 20f
-                }
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.graphicsLayer {
-                    alpha = animatedProgress.value
-                    translationY = (1f - animatedProgress.value) * 15f
-                }
-            ) {
-                Text(
-                    text = "Ready to play? Let's go!",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Filled.SportsEsports,
-                    contentDescription = "Game Controller Icon",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ─── Achievements / Stats Section ───
-            AchievementsSection(
-                stats = stats,
+            // ─── 1. Neon Glow "Tic Tac Toe" Title ───
+            NeonTitle(
                 animatedProgress = animatedProgress.value
             )
 
+            Spacer(modifier = Modifier.height(28.dp))
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // ─── Play Mode Section ───
-            Text(
-                text = "Choose how to play",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(bottom = 14.dp)
-                    .graphicsLayer { alpha = animatedProgress.value }
-            )
-
+            // ─── 2. "Play with Friend" Button ───
             ModeCard(
                 title = "Play with Friend",
                 subtitle = "Challenge a local player",
@@ -174,6 +84,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // ─── 3. "Play with Computer" Button ───
             ModeCard(
                 title = "Play with Computer",
                 subtitle = "Test your skills against AI",
@@ -183,10 +94,19 @@ fun HomeScreen(
                 animatedProgress = animatedProgress.value
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ─── 4. Stats Card (Achievements & Win Rate) ───
+            AchievementsSection(
+                stats = stats,
+                animatedProgress = animatedProgress.value
+            )
+
+            // Minimal bottom padding to prevent content touching edge
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // Settings icon
+        // Settings icon (top-right)
         IconButton(
             onClick = onSettingsClick,
             modifier = Modifier
@@ -199,8 +119,101 @@ fun HomeScreen(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-      }
+    }
+}
 
+// ─── Neon Title with Multi-layered Glow ───
+@Composable
+private fun NeonTitle(
+    animatedProgress: Float,
+    modifier: Modifier = Modifier
+) {
+    val titleText = "Tic Tac Toe"
+    val fontSize = 38.sp
+    val letterSpacing = 1.5.sp
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.graphicsLayer {
+            alpha = animatedProgress
+            translationY = (1f - animatedProgress) * 25f
+        }
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            // Layer 1: Wide diffused ambient aura
+            Text(
+                text = titleText,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black,
+                letterSpacing = letterSpacing,
+                style = TextStyle(
+                    color = CoralOrange.copy(alpha = 0.35f),
+                    shadow = Shadow(
+                        color = CoralOrange,
+                        blurRadius = 32f,
+                        offset = Offset.Zero
+                    )
+                )
+            )
+
+            // Layer 2: Medium vibrant neon halo
+            Text(
+                text = titleText,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black,
+                letterSpacing = letterSpacing,
+                style = TextStyle(
+                    color = CoralOrange.copy(alpha = 0.7f),
+                    shadow = Shadow(
+                        color = Color(0xFFFF7A50),
+                        blurRadius = 16f,
+                        offset = Offset.Zero
+                    )
+                )
+            )
+
+            // Layer 3: Inner core tube glow
+            Text(
+                text = titleText,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black,
+                letterSpacing = letterSpacing,
+                style = TextStyle(
+                    color = Color(0xFFFFD1C1),
+                    shadow = Shadow(
+                        color = Color(0xFFFFE0D6),
+                        blurRadius = 6f,
+                        offset = Offset.Zero
+                    )
+                )
+            )
+
+            // Layer 4: Sharp foremost neon text
+            Text(
+                text = titleText,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black,
+                letterSpacing = letterSpacing,
+                color = CoralOrange,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.White.copy(alpha = 0.85f),
+                        blurRadius = 2f,
+                        offset = Offset.Zero
+                    )
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Classic Board Game",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+            letterSpacing = 1.sp
+        )
     }
 }
 
