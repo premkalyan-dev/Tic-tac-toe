@@ -122,16 +122,12 @@ fun HomeScreen(
     }
 }
 
-// ─── Neon Title with Multi-layered Glow ───
+// ─── Neon Title with Multi-color Glowing Segments ───
 @Composable
 private fun NeonTitle(
     animatedProgress: Float,
     modifier: Modifier = Modifier
 ) {
-    val titleText = "Tic Tac Toe"
-    val fontSize = 38.sp
-    val letterSpacing = 1.5.sp
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.graphicsLayer {
@@ -139,73 +135,40 @@ private fun NeonTitle(
             translationY = (1f - animatedProgress) * 25f
         }
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            // Layer 1: Wide diffused ambient aura
-            Text(
-                text = titleText,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Black,
-                letterSpacing = letterSpacing,
-                style = TextStyle(
-                    color = CoralOrange.copy(alpha = 0.35f),
-                    shadow = Shadow(
-                        color = CoralOrange,
-                        blurRadius = 32f,
-                        offset = Offset.Zero
-                    )
-                )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // "Tic" - Neon Cyan
+            NeonWord(
+                text = "Tic",
+                baseColor = Color(0xFF00E5FF),
+                haloColor = Color(0xFF18FFFF),
+                coreHighlightColor = Color(0xFFE0F7FA)
             )
 
-            // Layer 2: Medium vibrant neon halo
-            Text(
-                text = titleText,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Black,
-                letterSpacing = letterSpacing,
-                style = TextStyle(
-                    color = CoralOrange.copy(alpha = 0.7f),
-                    shadow = Shadow(
-                        color = Color(0xFFFF7A50),
-                        blurRadius = 16f,
-                        offset = Offset.Zero
-                    )
-                )
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // "Tac" - Neon Magenta / Hot Pink
+            NeonWord(
+                text = "Tac",
+                baseColor = Color(0xFFFF2D87),
+                haloColor = Color(0xFFFF4081),
+                coreHighlightColor = Color(0xFFFCE4EC)
             )
 
-            // Layer 3: Inner core tube glow
-            Text(
-                text = titleText,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Black,
-                letterSpacing = letterSpacing,
-                style = TextStyle(
-                    color = Color(0xFFFFD1C1),
-                    shadow = Shadow(
-                        color = Color(0xFFFFE0D6),
-                        blurRadius = 6f,
-                        offset = Offset.Zero
-                    )
-                )
-            )
+            Spacer(modifier = Modifier.width(10.dp))
 
-            // Layer 4: Sharp foremost neon text
-            Text(
-                text = titleText,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Black,
-                letterSpacing = letterSpacing,
-                color = CoralOrange,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.White.copy(alpha = 0.85f),
-                        blurRadius = 2f,
-                        offset = Offset.Zero
-                    )
-                )
+            // "Toe" - Neon Amber Orange
+            NeonWord(
+                text = "Toe",
+                baseColor = Color(0xFFFF9100),
+                haloColor = Color(0xFFFFAB40),
+                coreHighlightColor = Color(0xFFFFF3E0)
             )
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         Text(
             text = "Classic Board Game",
@@ -213,6 +176,87 @@ private fun NeonTitle(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
             letterSpacing = 1.sp
+        )
+    }
+}
+
+@Composable
+private fun NeonWord(
+    text: String,
+    baseColor: Color,
+    haloColor: Color,
+    coreHighlightColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val fontSize = 38.sp
+    val letterSpacing = 1.5.sp
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ) {
+        // Layer 1: Wide diffused ambient aura
+        Text(
+            text = text,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            letterSpacing = letterSpacing,
+            style = TextStyle(
+                color = baseColor.copy(alpha = 0.35f),
+                shadow = Shadow(
+                    color = baseColor,
+                    blurRadius = 32f,
+                    offset = Offset.Zero
+                )
+            )
+        )
+
+        // Layer 2: Medium vibrant neon halo
+        Text(
+            text = text,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            letterSpacing = letterSpacing,
+            style = TextStyle(
+                color = baseColor.copy(alpha = 0.7f),
+                shadow = Shadow(
+                    color = haloColor,
+                    blurRadius = 16f,
+                    offset = Offset.Zero
+                )
+            )
+        )
+
+        // Layer 3: Inner core tube glow
+        Text(
+            text = text,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            letterSpacing = letterSpacing,
+            style = TextStyle(
+                color = coreHighlightColor,
+                shadow = Shadow(
+                    color = coreHighlightColor,
+                    blurRadius = 6f,
+                    offset = Offset.Zero
+                )
+            )
+        )
+
+        // Layer 4: Sharp foremost neon text
+        Text(
+            text = text,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            letterSpacing = letterSpacing,
+            color = baseColor,
+            style = TextStyle(
+                shadow = Shadow(
+                    color = Color.White.copy(alpha = 0.85f),
+                    blurRadius = 2f,
+                    offset = Offset.Zero
+                )
+            )
         )
     }
 }
