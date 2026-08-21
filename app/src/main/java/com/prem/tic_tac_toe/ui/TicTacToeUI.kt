@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.prem.tic_tac_toe.R
 import com.prem.tic_tac_toe.logic.GameState
 import com.prem.tic_tac_toe.logic.Player
@@ -149,7 +150,8 @@ fun GameScreen(
     // Reset Stats Dialog
     if (showResetDialog) {
         AlertDialog(
-            onDismissRequest = { showResetDialog = false },
+            onDismissRequest = {},
+            properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
             title = { Text("Reset Stats") },
             text = { Text("Are you sure you want to clear all your wins, losses, and draws?") },
             confirmButton = {
@@ -225,7 +227,8 @@ fun GameResultDialog(
     }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {},
+        properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
         title = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -528,7 +531,8 @@ fun SettingsDialog(
     // Reset Stats confirmation
     if (showResetConfirm) {
         AlertDialog(
-            onDismissRequest = { showResetConfirm = false },
+            onDismissRequest = {},
+            properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
             title = { Text("Reset Stats") },
             text = { Text("Are you sure you want to clear all your wins, losses, and draws?") },
             confirmButton = {

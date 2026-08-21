@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -146,7 +147,8 @@ fun AppNavigation(viewModel: GameViewModel) {
     // ─── Exit Confirmation Dialog ───
     if (showExitDialog) {
         AlertDialog(
-            onDismissRequest = { showExitDialog = false },
+            onDismissRequest = {},
+            properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
             title = {
                 Text(
                     text = "Exit Game?",
