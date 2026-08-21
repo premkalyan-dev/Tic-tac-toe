@@ -323,11 +323,18 @@ fun SettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Settings", fontWeight = FontWeight.Bold) },
+        title = { 
+            Text(
+                text = "Settings", 
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            ) 
+        },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // ─── Vibration Toggle ───
                 Row(
