@@ -128,10 +128,21 @@ fun AppNavigation(viewModel: GameViewModel) {
 
     // ─── Settings Dialog (shared) ───
     if (showSettingsDialog) {
+        val aiPlayer by viewModel.aiPlayer.collectAsState()
+        val currentMark = if (aiPlayer == Player.X) Player.O else Player.X
+        val gameState by viewModel.gameState.collectAsState()
+
+        // Disable mark change if a game is actively in progress (has moves, not finished)
+        val isOnGameScreen = currentRoute?.startsWith("game/") == true
+        val hasMovesPlayed = gameState.board.any { it != null }
+        val isGameOver = gameState.winner != null || gameState.isDraw
+        val isMarkChangeEnabled = !(isOnGameScreen && hasMovesPlayed && !isGameOver)
+
         SettingsDialog(
             isVibrationEnabled = isVibrationEnabled,
-            currentMark = viewModel.getHumanPlayerMark(),
+            currentMark = currentMark,
             currentTheme = appTheme,
+            isMarkChangeEnabled = isMarkChangeEnabled,
             onToggleVibration = { viewModel.toggleVibration() },
             onSetMark = { viewModel.setHumanPlayerMark(it) },
             onSetTheme = { viewModel.setAppTheme(it) },

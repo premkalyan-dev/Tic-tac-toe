@@ -85,14 +85,11 @@ class GameViewModel(
 
     private fun checkGameEnd(state: GameState) {
         if (state.winner != null) {
-            if (_gameMode.value == GameMode.VS_FRIEND) {
-                statsManager.incrementWins() // In vs friend, just count it as a win for someone
+            val humanMark = getHumanPlayerMark()
+            if (state.winner == humanMark) {
+                statsManager.incrementWins()
             } else {
-                if (state.winner == _aiPlayer.value) {
-                    statsManager.incrementLosses()
-                } else {
-                    statsManager.incrementWins()
-                }
+                statsManager.incrementLosses()
             }
             updateStats()
         } else if (state.isDraw) {
@@ -165,14 +162,11 @@ class GameViewModel(
 
         // Decrement stats if the game had ended
         if (currentState.winner != null) {
-            if (_gameMode.value == GameMode.VS_FRIEND) {
+            val humanMark = getHumanPlayerMark()
+            if (currentState.winner == humanMark) {
                 statsManager.decrementWins()
             } else {
-                if (currentState.winner == _aiPlayer.value) {
-                    statsManager.decrementLosses()
-                } else {
-                    statsManager.decrementWins()
-                }
+                statsManager.decrementLosses()
             }
         } else if (currentState.isDraw) {
             statsManager.decrementDraws()

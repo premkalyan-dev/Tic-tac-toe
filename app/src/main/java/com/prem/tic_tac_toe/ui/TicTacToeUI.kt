@@ -312,6 +312,7 @@ fun SettingsDialog(
     isVibrationEnabled: Boolean,
     currentMark: Player,
     currentTheme: String,
+    isMarkChangeEnabled: Boolean = true,
     onToggleVibration: () -> Unit,
     onSetMark: (Player) -> Unit,
     onSetTheme: (String) -> Unit,
@@ -372,6 +373,7 @@ fun SettingsDialog(
                     FilterChip(
                         selected = currentMark == Player.X,
                         onClick = { onSetMark(Player.X) },
+                        enabled = isMarkChangeEnabled,
                         label = {
                             Text(
                                 "Play as X",
@@ -387,6 +389,7 @@ fun SettingsDialog(
                     FilterChip(
                         selected = currentMark == Player.O,
                         onClick = { onSetMark(Player.O) },
+                        enabled = isMarkChangeEnabled,
                         label = {
                             Text(
                                 "Play as O",
@@ -397,6 +400,14 @@ fun SettingsDialog(
                             selectedContainerColor = OColor.copy(alpha = 0.15f),
                             selectedLabelColor = OColor
                         )
+                    )
+                }
+                if (!isMarkChangeEnabled) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Finish or restart the current game to change mark",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
 
